@@ -7,7 +7,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.jupiter.api.Test;
 import org.minitestlang.antlr.java.Java8Lexer;
 import org.minitestlang.antlr.java.Java8Parser;
-import org.minitestlang.listener.java.UppercaseMethodListener;
 
 import static org.junit.jupiter.api.Assertions.*;
 
