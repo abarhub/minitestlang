@@ -3,7 +3,7 @@ package org.minitestlang.listener.minitestlang;
 import org.minitestlang.antlr.minitestlang.MinitestlangBaseListener;
 import org.minitestlang.antlr.minitestlang.MinitestlangParser;
 import org.minitestlang.ast.*;
-import org.minitestlang.ast.expr.NumberExpressionAST;
+import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.AffectAST;
 import org.minitestlang.ast.instr.InstructionAST;
 import org.slf4j.Logger;
@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MiniTestLangListener extends MinitestlangBaseListener {
 
@@ -19,6 +20,7 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
     private ClassAST classAST;
     private List<MethodAST> methodASTs;
     private List<InstructionAST> instructionASTs;
+    private List<ExpressionAST> listeExpression=new ArrayList<>();
 
     @Override
     public void enterClassDef(MinitestlangParser.ClassDefContext ctx) {
@@ -49,12 +51,77 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
     }
 
     @Override
+    public void exitOpPlusMinus(MinitestlangParser.OpPlusMinusContext ctx) {
+        ExpressionAST left,right;
+        left=listeExpression.get(listeExpression.size()-2);
+        right=listeExpression.get(listeExpression.size()-1);
+        listeExpression.remove(listeExpression.size()-1);
+        listeExpression.remove(listeExpression.size()-1);
+        Operator op;
+        if(Objects.equals(ctx.op.getText(),"+")){
+            op=Operator.ADD;
+        }else if(Objects.equals(ctx.op.getText(),"-")){
+            op=Operator.SUB;
+        }else {
+            throw new IllegalArgumentException("Invalid operator "+ctx.op.getText());
+        }
+        BinaryOperatorExpressionAST binaryOperatorExpressionAST=new BinaryOperatorExpressionAST();
+        binaryOperatorExpressionAST.setLeft(left);
+        binaryOperatorExpressionAST.setRight(right);
+        binaryOperatorExpressionAST.setOperator(op);
+        listeExpression.add(binaryOperatorExpressionAST);
+    }
+
+    @Override
+    public void exitOpMultDiv(MinitestlangParser.OpMultDivContext ctx) {
+        ExpressionAST left,right;
+        left=listeExpression.get(listeExpression.size()-2);
+        right=listeExpression.get(listeExpression.size()-1);
+        listeExpression.remove(listeExpression.size()-1);
+        listeExpression.remove(listeExpression.size()-1);
+        Operator op;
+        if(Objects.equals(ctx.op.getText(),"*")){
+            op=Operator.MULT;
+        }else if(Objects.equals(ctx.op.getText(),"/")){
+            op=Operator.DIV;
+        }else {
+            throw new IllegalArgumentException("Invalid operator "+ctx.op.getText());
+        }
+        BinaryOperatorExpressionAST binaryOperatorExpressionAST=new BinaryOperatorExpressionAST();
+        binaryOperatorExpressionAST.setLeft(left);
+        binaryOperatorExpressionAST.setRight(right);
+        binaryOperatorExpressionAST.setOperator(op);
+        listeExpression.add(binaryOperatorExpressionAST);
+    }
+
+    @Override
+    public void exitIdent(MinitestlangParser.IdentContext ctx) {
+        String nom=ctx.Identifier().getText();
+        IdentExpressionAST ident=new IdentExpressionAST();
+        ident.setName(nom);
+        listeExpression.add(ident);
+    }
+
+    @Override
+    public void exitNumber(MinitestlangParser.NumberContext ctx) {
+        int n=Integer.parseInt(ctx.Number().getText());
+        NumberExpressionAST number=new NumberExpressionAST();
+        number.setNumber(n);
+        listeExpression.add(number);
+    }
+
+    @Override
+    public void exitParentExpr(MinitestlangParser.ParentExprContext ctx) {
+        // ne rien faire
+    }
+
+    @Override
     public void exitAffect(MinitestlangParser.AffectContext ctx) {
         AffectAST affectAST = new AffectAST();
         affectAST.setVariable(ctx.Identifier().getText());
-        NumberExpressionAST numberExpressionAST = new NumberExpressionAST();
-        numberExpressionAST.setNumber(Integer.parseInt(ctx.Number().getText()));
-        affectAST.setExpression(numberExpressionAST);
+        ExpressionAST expr=listeExpression.get(listeExpression.size()-1);
+        listeExpression.remove(listeExpression.size()-1);
+        affectAST.setExpression(expr);
         instructionASTs.add(affectAST);
     }
 

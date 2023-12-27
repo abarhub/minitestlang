@@ -25,4 +25,20 @@ class InterpreterTest {
         Interpreter interpreter=new Interpreter();
         interpreter.run(classAst);
     }
+
+    @Test
+    void run2() throws Exception {
+        String javaClassContent = """
+                class SampleClass { 
+                int main(){
+                    a=5+7;
+                    b=8-3;
+                } 
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter=new Interpreter();
+        interpreter.run(classAst);
+    }
 }

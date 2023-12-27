@@ -2,6 +2,7 @@ package org.minitestlang.interpreter;
 
 import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
+import org.minitestlang.ast.expr.ExpressionAST;
 import org.minitestlang.ast.expr.NumberExpressionAST;
 import org.minitestlang.ast.instr.AffectAST;
 import org.minitestlang.ast.instr.InstructionAST;
@@ -27,11 +28,11 @@ public class Interpreter {
 
     private void run(MethodAST methodAST) {
         if (methodAST.getInstructions() != null) {
-            Map<String, Integer> map = new HashMap<>();
+            Map<String, ExpressionAST> map = new HashMap<>();
             for (InstructionAST instr : methodAST.getInstructions()) {
                 if (instr instanceof AffectAST affect) {
                     LOGGER.debug("affect {} = {}", affect.getVariable(), affect.getExpression());
-                    map.put(affect.getVariable(), ((NumberExpressionAST) affect.getExpression()).getNumber());
+                    map.put(affect.getVariable(), affect.getExpression());
                 }
             }
             LOGGER.info("methode {} : {}", methodAST.getName(), map);

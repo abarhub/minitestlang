@@ -13,8 +13,17 @@ method: type Identifier LPAREN RPAREN LBRACE
     ;
 
 instr:
-    Identifier ASSIGN Number # Affect
+    Identifier ASSIGN expression # Affect
     ;
+
+expression:
+    LPAREN expression RPAREN # ParentExpr
+    | expression op=(ADD|SUB) expression  # OpPlusMinus
+    | expression op=(MUL|DIV) expression  # OpMultDiv
+    | Number                         # Number
+    | Identifier                         # Ident
+    ;
+
 
 type: BOOLEAN | INT | VOID ;
 
