@@ -53,13 +53,13 @@ Total lexer+parser time 30844ms.
  */
 grammar Java8;
 
-
+/*
 @header {
 
 //package org.minitestlang.antlr;
 
 }
-
+*/
 
 /*
  * Productions from §3 (Lexical Structure)
