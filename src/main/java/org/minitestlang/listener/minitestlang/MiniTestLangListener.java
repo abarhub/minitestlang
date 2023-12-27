@@ -22,40 +22,47 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
 
     @Override
     public void enterClassDef(MinitestlangParser.ClassDefContext ctx) {
-        methodASTs=new ArrayList<>();
+        methodASTs = new ArrayList<>();
     }
 
     @Override
     public void exitClassDef(MinitestlangParser.ClassDefContext ctx) {
-        LOGGER.info("class {}",ctx.Identifier());
-        classAST=new ClassAST();
+        LOGGER.info("class {}", ctx.Identifier());
+        classAST = new ClassAST();
         classAST.setName(ctx.Identifier().getText());
         classAST.setMethods(methodASTs);
     }
 
     @Override
     public void exitMethod(MinitestlangParser.MethodContext ctx) {
-        LOGGER.info("methode {} (return:{})",ctx.Identifier(),ctx.type().getRuleIndex());
-        MethodAST methodAST=new MethodAST();
+        LOGGER.info("methode {} (return:{})", ctx.Identifier(), ctx.type().getRuleIndex());
+        MethodAST methodAST = new MethodAST();
         methodAST.setName(ctx.Identifier().getText());
         methodAST.setInstructions(instructionASTs);
-        instructionASTs=null;
+        instructionASTs = null;
         methodASTs.add(methodAST);
     }
 
     @Override
     public void enterMethod(MinitestlangParser.MethodContext ctx) {
-        instructionASTs=new ArrayList<>();
+        instructionASTs = new ArrayList<>();
     }
 
     @Override
     public void exitAffect(MinitestlangParser.AffectContext ctx) {
         AffectAST affectAST = new AffectAST();
         affectAST.setVariable(ctx.Identifier().getText());
-        NumberExpressionAST numberExpressionAST=new NumberExpressionAST();
+        NumberExpressionAST numberExpressionAST = new NumberExpressionAST();
         numberExpressionAST.setNumber(Integer.parseInt(ctx.Number().getText()));
         affectAST.setExpression(numberExpressionAST);
         instructionASTs.add(affectAST);
     }
 
+    public ClassAST getClassAST() {
+        return classAST;
+    }
+
+    public void setClassAST(ClassAST classAST) {
+        this.classAST = classAST;
+    }
 }

@@ -1,6 +1,8 @@
 package org.minitestlang.ast;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class ClassAST {
 
@@ -21,5 +23,15 @@ public class ClassAST {
 
     public void setMethods(List<MethodAST> methods) {
         this.methods = methods;
+    }
+
+    public Optional<MethodAST> getMethod(String name){
+        if(methods==null) {
+            return Optional.empty();
+        }else {
+            return methods.stream()
+                    .filter(x-> Objects.equals(name,x.getName()))
+                    .findAny();
+        }
     }
 }

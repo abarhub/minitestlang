@@ -8,7 +8,7 @@ classDef:
     ;
 
 method: type Identifier LPAREN RPAREN LBRACE
-    ( instr )*
+    ( instr SEMI )*
     RBRACE
     ;
 
