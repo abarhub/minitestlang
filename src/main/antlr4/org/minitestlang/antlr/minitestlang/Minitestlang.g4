@@ -18,8 +18,8 @@ instr:
 
 expression:
     LPAREN expression RPAREN # ParentExpr
-    | expression op=(ADD|SUB) expression  # OpPlusMinus
     | expression op=(MUL|DIV) expression  # OpMultDiv
+    | expression op=(ADD|SUB) expression  # OpPlusMinus
     | Number                         # Number
     | Identifier                         # Ident
     ;
