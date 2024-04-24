@@ -1,0 +1,8 @@
+class SampleClass {
+    int main(){
+        a=8;
+        b=a-2;
+        c=a-b;
+        d=a*2+b*3+b/2;
+    }
+}
