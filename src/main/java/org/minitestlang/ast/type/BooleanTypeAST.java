@@ -1,4 +1,6 @@
 package org.minitestlang.ast.type;
 
-public record BooleanTypeAST() implements TypeAST{
+import org.minitestlang.ast.PositionAST;
+
+public record BooleanTypeAST(PositionAST position) implements TypeAST{
 }

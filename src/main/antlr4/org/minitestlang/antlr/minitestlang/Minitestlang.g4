@@ -1,22 +1,33 @@
 
 grammar Minitestlang;
 
+@header {
+import org.minitestlang.listener.minitestlang.result.ResultExpr;
+import org.minitestlang.listener.minitestlang.result.ResultDeclVar;
+}
+
 classDef:
     CLASS Identifier LBRACE 
       method
     RBRACE
     ;
 
-method: type Identifier LPAREN RPAREN LBRACE
+method: typeMethod Identifier LPAREN RPAREN LBRACE
     ( instr SEMI )*
     RBRACE
     ;
 
 instr:
-    Identifier ASSIGN expression # Affect
+    type decl_var ( ',' decl_var )* # DeclareVariable
+    | Identifier ASSIGN expression # Affect
     ;
 
-expression:
+decl_var returns [ResultDeclVar expr] :
+    Identifier (ASSIGN expression)?
+    ;
+
+
+expression returns [ResultExpr expr] :
     LPAREN expression RPAREN # ParentExpr
     | expression op=(MUL|DIV) expression  # OpMultDiv
     | expression op=(ADD|SUB) expression  # OpPlusMinus
@@ -25,7 +36,9 @@ expression:
     ;
 
 
-type: BOOLEAN | INT | VOID ;
+type: BOOLEAN | INT ;
+
+typeMethod: type | VOID ;
 
 main: classDef;
 

@@ -7,6 +7,7 @@ import org.minitestlang.ast.expr.ExpressionAST;
 import org.minitestlang.ast.expr.IdentExpressionAST;
 import org.minitestlang.ast.expr.NumberExpressionAST;
 import org.minitestlang.ast.instr.AffectAST;
+import org.minitestlang.ast.instr.DeclareAST;
 import org.minitestlang.ast.instr.InstructionAST;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,11 @@ public class Interpreter {
                     Value value = run(map, affect.getExpression());
                     LOGGER.debug("affect {} = {}", affect.getVariable(), affect.getExpression());
                     map.put(affect.getVariable(), value);
+                } else if (instr instanceof DeclareAST declareAST) {
+                    if(declareAST.value().isPresent()){
+                        Value value = run(map, declareAST.value().get());
+                        map.put(declareAST.name(), value);
+                    }
                 }
             }
             LOGGER.info("methode {} : {}", methodAST.getName(), map);

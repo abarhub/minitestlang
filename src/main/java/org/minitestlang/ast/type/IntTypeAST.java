@@ -1,6 +1,6 @@
 package org.minitestlang.ast.type;
 
-import org.minitestlang.ast.type.TypeAST;
+import org.minitestlang.ast.PositionAST;
 
-public record IntTypeAST() implements TypeAST {
+public record IntTypeAST(PositionAST position) implements TypeAST {
 }

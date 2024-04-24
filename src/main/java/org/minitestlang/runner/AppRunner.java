@@ -5,6 +5,7 @@ import org.minitestlang.analyser.AnalyserException;
 import org.minitestlang.ast.ClassAST;
 import org.minitestlang.interpreter.Interpreter;
 import org.minitestlang.interpreter.InterpreterException;
+import org.minitestlang.listener.minitestlang.ListenerException;
 import org.minitestlang.listener.minitestlang.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,8 @@ public class AppRunner implements ApplicationRunner {
                 error("Error run " + e.getMessage());
             } catch (AnalyserException e) {
                 error("Error analyse " + e.getMessage());
+            } catch (ListenerException e) {
+                error("Error parsing " + e.getMessage());
             }
         } catch (IOException e) {
             error("Error for read file " + p);

@@ -1,4 +1,6 @@
 package org.minitestlang.ast.type;
 
-public record VoidTypeAST() implements TypeAST {
+import org.minitestlang.ast.PositionAST;
+
+public record VoidTypeAST(PositionAST position) implements TypeAST {
 }

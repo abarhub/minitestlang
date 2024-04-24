@@ -1,5 +1,6 @@
 class SampleClass {
     int main(){
+        int a=4,b=8,c,d,e=7;
         a=8;
         b=a-2;
         c=a-b;
