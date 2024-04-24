@@ -1,14 +1,13 @@
 package org.minitestlang.ast.expr;
 
-public class IdentExpressionAST implements ExpressionAST{
+import com.google.common.base.Strings;
+import com.google.common.base.Verify;
+import org.minitestlang.ast.PositionAST;
 
-    private String name;
+public record IdentExpressionAST(String name,PositionAST positionName) implements ExpressionAST{
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public IdentExpressionAST {
+        Verify.verify(!Strings.isNullOrEmpty(name));
+        Verify.verify(positionName != null);
     }
 }

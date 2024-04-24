@@ -8,7 +8,6 @@ public class MiniTestLangApplication {
 
 
     public static void main(String[] args){
-        System.out.printf("Hello");
         SpringApplication.run(MiniTestLangApplication.class, args);
     }
 

@@ -1,14 +1,11 @@
 package org.minitestlang.ast.expr;
 
-public class NumberExpressionAST implements ExpressionAST{
+import com.google.common.base.Verify;
+import org.minitestlang.ast.PositionAST;
 
-    private int number;
+public record NumberExpressionAST(int number, PositionAST position) implements ExpressionAST {
 
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
+    public NumberExpressionAST {
+        Verify.verifyNotNull(position, "position is null");
     }
 }

@@ -8,6 +8,8 @@ public class ClassAST {
 
     private String name;
     private List<MethodAST> methods;
+    private PositionAST positionClass;
+    private PositionAST positionName;
 
     public String getName() {
         return name;
@@ -23,6 +25,22 @@ public class ClassAST {
 
     public void setMethods(List<MethodAST> methods) {
         this.methods = methods;
+    }
+
+    public PositionAST getPositionClass() {
+        return positionClass;
+    }
+
+    public void setPositionClass(PositionAST positionClass) {
+        this.positionClass = positionClass;
+    }
+
+    public PositionAST getPositionName() {
+        return positionName;
+    }
+
+    public void setPositionName(PositionAST positionName) {
+        this.positionName = positionName;
     }
 
     public Optional<MethodAST> getMethod(String name){

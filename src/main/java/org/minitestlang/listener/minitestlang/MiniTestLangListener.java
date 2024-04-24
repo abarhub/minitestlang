@@ -1,5 +1,6 @@
 package org.minitestlang.listener.minitestlang;
 
+import org.antlr.v4.runtime.Token;
 import org.minitestlang.antlr.minitestlang.MinitestlangBaseListener;
 import org.minitestlang.antlr.minitestlang.MinitestlangParser;
 import org.minitestlang.ast.*;
@@ -33,6 +34,8 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
         classAST = new ClassAST();
         classAST.setName(ctx.Identifier().getText());
         classAST.setMethods(methodASTs);
+        classAST.setPositionClass(createPosition(ctx.CLASS().getSymbol()));
+        classAST.setPositionName(createPosition(ctx.Identifier().getSymbol()));
     }
 
     @Override
@@ -65,10 +68,7 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
         }else {
             throw new IllegalArgumentException("Invalid operator "+ctx.op.getText());
         }
-        BinaryOperatorExpressionAST binaryOperatorExpressionAST=new BinaryOperatorExpressionAST();
-        binaryOperatorExpressionAST.setLeft(left);
-        binaryOperatorExpressionAST.setRight(right);
-        binaryOperatorExpressionAST.setOperator(op);
+        BinaryOperatorExpressionAST binaryOperatorExpressionAST=new BinaryOperatorExpressionAST(left,right,op);
         listeExpression.add(binaryOperatorExpressionAST);
     }
 
@@ -87,26 +87,21 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
         }else {
             throw new IllegalArgumentException("Invalid operator "+ctx.op.getText());
         }
-        BinaryOperatorExpressionAST binaryOperatorExpressionAST=new BinaryOperatorExpressionAST();
-        binaryOperatorExpressionAST.setLeft(left);
-        binaryOperatorExpressionAST.setRight(right);
-        binaryOperatorExpressionAST.setOperator(op);
+        BinaryOperatorExpressionAST binaryOperatorExpressionAST=new BinaryOperatorExpressionAST(left,right,op);
         listeExpression.add(binaryOperatorExpressionAST);
     }
 
     @Override
     public void exitIdent(MinitestlangParser.IdentContext ctx) {
         String nom=ctx.Identifier().getText();
-        IdentExpressionAST ident=new IdentExpressionAST();
-        ident.setName(nom);
+        IdentExpressionAST ident=new IdentExpressionAST(nom,createPosition(ctx.Identifier().getSymbol()));
         listeExpression.add(ident);
     }
 
     @Override
     public void exitNumber(MinitestlangParser.NumberContext ctx) {
         int n=Integer.parseInt(ctx.Number().getText());
-        NumberExpressionAST number=new NumberExpressionAST();
-        number.setNumber(n);
+        NumberExpressionAST number=new NumberExpressionAST(n,createPosition(ctx.Number().getSymbol()));
         listeExpression.add(number);
     }
 
@@ -122,6 +117,7 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
         ExpressionAST expr=listeExpression.get(listeExpression.size()-1);
         listeExpression.remove(listeExpression.size()-1);
         affectAST.setExpression(expr);
+        affectAST.setPositionVariable(createPosition(ctx.Identifier().getSymbol()));
         instructionASTs.add(affectAST);
     }
 
@@ -131,5 +127,9 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
 
     public void setClassAST(ClassAST classAST) {
         this.classAST = classAST;
+    }
+
+    private PositionAST createPosition(Token token){
+        return new PositionAST(token.getLine(),token.getCharPositionInLine());
     }
 }

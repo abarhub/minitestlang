@@ -1,5 +1,7 @@
 package org.minitestlang.runner;
 
+import org.minitestlang.analyser.Analyser;
+import org.minitestlang.analyser.AnalyserException;
 import org.minitestlang.ast.ClassAST;
 import org.minitestlang.interpreter.Interpreter;
 import org.minitestlang.interpreter.InterpreterException;
@@ -40,10 +42,14 @@ public class AppRunner implements ApplicationRunner {
             try (StringReader reader = new StringReader(s)) {
                 Parser parser = new Parser();
                 ClassAST ast = parser.parse(reader);
+                Analyser analyser = new Analyser();
+                analyser.analyser(ast);
                 Interpreter interpreter = new Interpreter();
                 interpreter.run(ast);
             } catch (InterpreterException e) {
-                error("Error run run " + e.getMessage());
+                error("Error run " + e.getMessage());
+            } catch (AnalyserException e) {
+                error("Error analyse " + e.getMessage());
             }
         } catch (IOException e) {
             error("Error for read file " + p);

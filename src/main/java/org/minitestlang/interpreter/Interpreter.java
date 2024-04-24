@@ -49,22 +49,22 @@ public class Interpreter {
 
     private Value run(Map<String, Value> map, ExpressionAST expression) throws InterpreterException {
         if (expression instanceof NumberExpressionAST num) {
-            return new IntValue(num.getNumber());
+            return new IntValue(num.number());
         } else if (expression instanceof IdentExpressionAST ident) {
-            if (map.containsKey(ident.getName())) {
-                return map.get(ident.getName());
+            if (map.containsKey(ident.name())) {
+                return map.get(ident.name());
             } else {
-                throw new InterpreterException("Variable " + ident.getName() + " not initialized");
+                throw new InterpreterException("Variable " + ident.name() + " not initialized");
             }
         } else if (expression instanceof BinaryOperatorExpressionAST bin) {
-            var left = run(map, bin.getLeft());
-            var right = run(map, bin.getRight());
+            var left = run(map, bin.left());
+            var right = run(map, bin.right());
             if (left == null) {
                 throw new InterpreterException("Invalide left expression");
             } else if (right == null) {
                 throw new InterpreterException("Invalide right expression");
             }
-            return switch (bin.getOperator()) {
+            return switch (bin.operator()) {
                 case ADD -> new IntValue(((IntValue) left).getNumber() + ((IntValue) right).getNumber());
                 case SUB -> new IntValue(((IntValue) left).getNumber() - ((IntValue) right).getNumber());
                 case MULT -> new IntValue(((IntValue) left).getNumber() * ((IntValue) right).getNumber());

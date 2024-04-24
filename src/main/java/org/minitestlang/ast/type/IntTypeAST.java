@@ -2,5 +2,5 @@ package org.minitestlang.ast.type;
 
 import org.minitestlang.ast.type.TypeAST;
 
-public class IntTypeAST implements TypeAST {
+public record IntTypeAST() implements TypeAST {
 }

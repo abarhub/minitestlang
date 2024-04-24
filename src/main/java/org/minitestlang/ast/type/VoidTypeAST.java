@@ -1,4 +1,4 @@
 package org.minitestlang.ast.type;
 
-public class VoidTypeAST implements TypeAST {
+public record VoidTypeAST() implements TypeAST {
 }

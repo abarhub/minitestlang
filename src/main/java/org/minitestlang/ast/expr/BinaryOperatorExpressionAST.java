@@ -1,31 +1,13 @@
 package org.minitestlang.ast.expr;
 
-public class BinaryOperatorExpressionAST implements ExpressionAST {
+import com.google.common.base.Verify;
 
-    private ExpressionAST left,right;
-    private Operator operator;
-
-    public ExpressionAST getLeft() {
-        return left;
-    }
-
-    public void setLeft(ExpressionAST left) {
-        this.left = left;
-    }
-
-    public ExpressionAST getRight() {
-        return right;
-    }
-
-    public void setRight(ExpressionAST right) {
-        this.right = right;
-    }
-
-    public Operator getOperator() {
-        return operator;
-    }
-
-    public void setOperator(Operator operator) {
-        this.operator = operator;
+public record BinaryOperatorExpressionAST(ExpressionAST left,
+                                          ExpressionAST right,
+                                          Operator operator) implements ExpressionAST {
+    public BinaryOperatorExpressionAST {
+        Verify.verify(operator != null, "operator cannot be null");
+        Verify.verify(left != null, "left cannot be null");
+        Verify.verify(right != null, "right cannot be null");
     }
 }
