@@ -135,6 +135,13 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
     }
 
     @Override
+    public void exitBooleanValue(MinitestlangParser.BooleanValueContext ctx) {
+        boolean b = Boolean.parseBoolean(ctx.getText());
+        BooleanExpressionAST bool = new BooleanExpressionAST(b, createPosition(ctx.getStart()));
+        ctx.expr = new ResultExpr(bool);
+    }
+
+    @Override
     public void exitParentExpr(MinitestlangParser.ParentExprContext ctx) {
         // ne rien faire
     }

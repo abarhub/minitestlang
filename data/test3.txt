@@ -1,9 +1,11 @@
 class SampleClass {
     int main(){
-        int a=4,b=8,c,d,e=7;
+        int a=4,b=8,c,d,e=7,f=false,g;
         a=8;
         b=a-2;
         c=a-b;
         d=a*2+b*3+b/2;
+        f=true;
+        g=false;
     }
 }

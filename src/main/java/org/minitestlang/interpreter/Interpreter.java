@@ -2,10 +2,7 @@ package org.minitestlang.interpreter;
 
 import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
-import org.minitestlang.ast.expr.BinaryOperatorExpressionAST;
-import org.minitestlang.ast.expr.ExpressionAST;
-import org.minitestlang.ast.expr.IdentExpressionAST;
-import org.minitestlang.ast.expr.NumberExpressionAST;
+import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.AffectAST;
 import org.minitestlang.ast.instr.DeclareAST;
 import org.minitestlang.ast.instr.InstructionAST;
@@ -56,6 +53,8 @@ public class Interpreter {
     private Value run(Map<String, Value> map, ExpressionAST expression) throws InterpreterException {
         if (expression instanceof NumberExpressionAST num) {
             return new IntValue(num.number());
+        }else if (expression instanceof BooleanExpressionAST booleanExpressionAST) {
+            return new BoolValue(booleanExpressionAST.value());
         } else if (expression instanceof IdentExpressionAST ident) {
             if (map.containsKey(ident.name())) {
                 return map.get(ident.name());
@@ -71,10 +70,10 @@ public class Interpreter {
                 throw new InterpreterException("Invalide right expression");
             }
             return switch (bin.operator()) {
-                case ADD -> new IntValue(((IntValue) left).getNumber() + ((IntValue) right).getNumber());
-                case SUB -> new IntValue(((IntValue) left).getNumber() - ((IntValue) right).getNumber());
-                case MULT -> new IntValue(((IntValue) left).getNumber() * ((IntValue) right).getNumber());
-                case DIV -> new IntValue(((IntValue) left).getNumber() / ((IntValue) right).getNumber());
+                case ADD -> new IntValue(((IntValue) left).number() + ((IntValue) right).number());
+                case SUB -> new IntValue(((IntValue) left).number() - ((IntValue) right).number());
+                case MULT -> new IntValue(((IntValue) left).number() * ((IntValue) right).number());
+                case DIV -> new IntValue(((IntValue) left).number() / ((IntValue) right).number());
             };
         } else {
             throw new InterpreterException("Error for evaluate expression");
