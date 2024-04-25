@@ -16,7 +16,7 @@ public class Interpreter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Interpreter.class);
 
-    private List<Consumer<Map<String, Value>>> methodListener = new ArrayList<>();
+    private final List<Consumer<Map<String, Value>>> methodListener = new ArrayList<>();
 
     public void run(ClassAST ast) throws InterpreterException {
         Optional<MethodAST> optMethod = ast.getMethod("main");
@@ -51,32 +51,36 @@ public class Interpreter {
     }
 
     private Value run(Map<String, Value> map, ExpressionAST expression) throws InterpreterException {
-        if (expression instanceof NumberExpressionAST num) {
-            return new IntValue(num.number());
-        }else if (expression instanceof BooleanExpressionAST booleanExpressionAST) {
-            return new BoolValue(booleanExpressionAST.value());
-        } else if (expression instanceof IdentExpressionAST ident) {
-            if (map.containsKey(ident.name())) {
-                return map.get(ident.name());
-            } else {
-                throw new InterpreterException("Variable " + ident.name() + " not initialized");
+        switch (expression) {
+            case NumberExpressionAST num -> {
+                return new IntValue(num.number());
             }
-        } else if (expression instanceof BinaryOperatorExpressionAST bin) {
-            var left = run(map, bin.left());
-            var right = run(map, bin.right());
-            if (left == null) {
-                throw new InterpreterException("Invalide left expression");
-            } else if (right == null) {
-                throw new InterpreterException("Invalide right expression");
+            case BooleanExpressionAST booleanExpressionAST -> {
+                return new BoolValue(booleanExpressionAST.value());
             }
-            return switch (bin.operator()) {
-                case ADD -> new IntValue(((IntValue) left).number() + ((IntValue) right).number());
-                case SUB -> new IntValue(((IntValue) left).number() - ((IntValue) right).number());
-                case MULT -> new IntValue(((IntValue) left).number() * ((IntValue) right).number());
-                case DIV -> new IntValue(((IntValue) left).number() / ((IntValue) right).number());
-            };
-        } else {
-            throw new InterpreterException("Error for evaluate expression");
+            case IdentExpressionAST ident -> {
+                if (map.containsKey(ident.name())) {
+                    return map.get(ident.name());
+                } else {
+                    throw new InterpreterException("Variable " + ident.name() + " not initialized");
+                }
+            }
+            case BinaryOperatorExpressionAST bin -> {
+                var left = run(map, bin.left());
+                var right = run(map, bin.right());
+                if (left == null) {
+                    throw new InterpreterException("Invalide left expression");
+                } else if (right == null) {
+                    throw new InterpreterException("Invalide right expression");
+                }
+                return switch (bin.operator()) {
+                    case ADD -> new IntValue(((IntValue) left).number() + ((IntValue) right).number());
+                    case SUB -> new IntValue(((IntValue) left).number() - ((IntValue) right).number());
+                    case MULT -> new IntValue(((IntValue) left).number() * ((IntValue) right).number());
+                    case DIV -> new IntValue(((IntValue) left).number() / ((IntValue) right).number());
+                };
+            }
+            case null, default -> throw new InterpreterException("Error for evaluate expression");
         }
     }
 
