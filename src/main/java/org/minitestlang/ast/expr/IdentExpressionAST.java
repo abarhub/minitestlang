@@ -1,13 +1,13 @@
 package org.minitestlang.ast.expr;
 
-import com.google.common.base.Strings;
-import com.google.common.base.Verify;
 import org.minitestlang.ast.PositionAST;
+import org.minitestlang.utils.StringUtils;
+import org.minitestlang.utils.VerifyUtils;
 
 public record IdentExpressionAST(String name,PositionAST position) implements ExpressionAST{
 
     public IdentExpressionAST {
-        Verify.verify(!Strings.isNullOrEmpty(name));
-        Verify.verify(position != null);
+        VerifyUtils.verify(StringUtils.isNotBlank(name),"name cannot be null or empty");
+        VerifyUtils.verifyNotNull(position,"position is null");
     }
 }

@@ -5,6 +5,7 @@ import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.AffectAST;
+import org.minitestlang.utils.CollectionUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -15,18 +16,23 @@ class ParserTest {
 
     @Test
     void parse() throws IOException {
+        // ARRANGE
         String javaClassContent = "class SampleClass { int DoSomething(){} }";
         Parser parser = new Parser();
+        // ACT
         ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
         assertNotNull(classAst);
         assertEquals("SampleClass", classAst.getName());
         MethodAST method = classAst.getMethods().getFirst();
         assertEquals("DoSomething", method.getName());
-        assertEquals(0, method.getInstructions().size());
+        assertEquals(0, CollectionUtils.size(method.getInstructions()));
     }
 
     @Test
     void parse2() throws IOException {
+        // ARRANGE
         String javaClassContent = """
                 class SampleClass {
                 int DoSomething(){
@@ -35,7 +41,11 @@ class ParserTest {
                 }
                 }""";
         Parser parser = new Parser();
+
+        // ACT
         ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
         assertNotNull(classAst);
         assertEquals("SampleClass", classAst.getName());
         MethodAST method = classAst.getMethods().getFirst();
@@ -55,6 +65,7 @@ class ParserTest {
 
     @Test
     void parse3() throws IOException {
+        // ARRANGE
         String javaClassContent = """
                 class SampleClass {
                 int DoSomething(){
@@ -64,7 +75,11 @@ class ParserTest {
                 }
                 }""";
         Parser parser = new Parser();
+
+        // ACT
         ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
         assertNotNull(classAst);
         assertEquals("SampleClass", classAst.getName());
         MethodAST method = classAst.getMethods().getFirst();

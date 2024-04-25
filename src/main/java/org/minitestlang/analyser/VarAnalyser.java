@@ -1,15 +1,15 @@
 package org.minitestlang.analyser;
 
-import com.google.common.base.Verify;
 import org.minitestlang.ast.type.TypeAST;
+import org.minitestlang.utils.VerifyUtils;
 
 public class VarAnalyser {
 
     private final TypeAST type;
     private boolean affected;
 
-    public VarAnalyser(TypeAST type,boolean affected) {
-        Verify.verifyNotNull(type, "type is null");
+    public VarAnalyser(TypeAST type, boolean affected) {
+        VerifyUtils.verifyNotNull(type, "type is null");
         this.type = type;
         this.affected = affected;
     }
