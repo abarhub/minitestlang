@@ -70,8 +70,7 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
 
         List<InstructionAST> listeInstructions = new ArrayList<>();
         List<MinitestlangParser.Decl_varContext> listeDeclaration = ctx.decl_var();
-        for (int i = 0; i < listeDeclaration.size(); i++) {
-            MinitestlangParser.Decl_varContext declareVar = listeDeclaration.get(i);
+        for (MinitestlangParser.Decl_varContext declareVar : listeDeclaration) {
             TerminalNode ident = declareVar.Identifier();
             String name = ident.getText();
             ExpressionAST expressionAST = null;
