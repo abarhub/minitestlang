@@ -161,7 +161,7 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
     }
 
     private PositionAST createPosition(Token token) {
-        return new PositionAST(token.getLine(), token.getCharPositionInLine());
+        return new PositionAST(token.getLine(), token.getCharPositionInLine()+1);
     }
 
     private TypeAST createType(Token token) {

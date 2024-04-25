@@ -28,11 +28,11 @@ class ParserTest {
     @Test
     void parse2() throws IOException {
         String javaClassContent = """
-                class SampleClass { 
+                class SampleClass {
                 int DoSomething(){
                     a=5;
                     b=8;
-                } 
+                }
                 }""";
         Parser parser = new Parser();
         ClassAST classAst = parser.parse(new StringReader(javaClassContent));
@@ -56,12 +56,12 @@ class ParserTest {
     @Test
     void parse3() throws IOException {
         String javaClassContent = """
-                class SampleClass { 
+                class SampleClass {
                 int DoSomething(){
                     a=4;
                     b=6;
                     c=a*2+b*3;
-                } 
+                }
                 }""";
         Parser parser = new Parser();
         ClassAST classAst = parser.parse(new StringReader(javaClassContent));
