@@ -20,7 +20,7 @@ class ParserTest {
         ClassAST classAst = parser.parse(new StringReader(javaClassContent));
         assertNotNull(classAst);
         assertEquals("SampleClass", classAst.getName());
-        MethodAST method = classAst.getMethods().get(0);
+        MethodAST method = classAst.getMethods().getFirst();
         assertEquals("DoSomething", method.getName());
         assertEquals(0, method.getInstructions().size());
     }
@@ -38,11 +38,11 @@ class ParserTest {
         ClassAST classAst = parser.parse(new StringReader(javaClassContent));
         assertNotNull(classAst);
         assertEquals("SampleClass", classAst.getName());
-        MethodAST method = classAst.getMethods().get(0);
+        MethodAST method = classAst.getMethods().getFirst();
         assertEquals("DoSomething", method.getName());
         assertEquals(2, method.getInstructions().size());
-        assertInstanceOf(AffectAST.class, method.getInstructions().get(0));
-        AffectAST affect = (AffectAST) method.getInstructions().get(0);
+        assertInstanceOf(AffectAST.class, method.getInstructions().getFirst());
+        AffectAST affect = (AffectAST) method.getInstructions().getFirst();
         assertEquals("a", affect.getVariable());
         assertInstanceOf(NumberExpressionAST.class, affect.getExpression());
         assertEquals(5, ((NumberExpressionAST) affect.getExpression()).number());
@@ -67,11 +67,11 @@ class ParserTest {
         ClassAST classAst = parser.parse(new StringReader(javaClassContent));
         assertNotNull(classAst);
         assertEquals("SampleClass", classAst.getName());
-        MethodAST method = classAst.getMethods().get(0);
+        MethodAST method = classAst.getMethods().getFirst();
         assertEquals("DoSomething", method.getName());
         assertEquals(3, method.getInstructions().size());
-        assertInstanceOf(AffectAST.class, method.getInstructions().get(0));
-        AffectAST affect = (AffectAST) method.getInstructions().get(0);
+        assertInstanceOf(AffectAST.class, method.getInstructions().getFirst());
+        AffectAST affect = (AffectAST) method.getInstructions().getFirst();
         assertEquals("a", affect.getVariable());
         assertInstanceOf(NumberExpressionAST.class, affect.getExpression());
         assertEquals(4, ((NumberExpressionAST) affect.getExpression()).number());

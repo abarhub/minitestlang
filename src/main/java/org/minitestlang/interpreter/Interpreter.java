@@ -42,10 +42,8 @@ public class Interpreter {
                 }
             }
             LOGGER.info("methode {} : {}", methodAST.getName(), map);
-            if(methodListener!=null){
-                for(var listener:methodListener){
-                    listener.accept(map);
-                }
+            for (var listener : methodListener) {
+                listener.accept(map);
             }
         }
     }
