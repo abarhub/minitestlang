@@ -4,20 +4,23 @@ grammar Minitestlang;
 @header {
 import org.minitestlang.listener.minitestlang.result.ResultExpr;
 import org.minitestlang.listener.minitestlang.result.ResultDeclVar;
+import org.minitestlang.listener.minitestlang.result.ResultClass;
+import org.minitestlang.listener.minitestlang.result.ResultMethod;
+import org.minitestlang.listener.minitestlang.result.ResultInstr;
 }
 
-classDef:
+classDef returns [ResultClass result] :
     CLASS Identifier LBRACE 
       method
     RBRACE
     ;
 
-method: typeMethod Identifier LPAREN RPAREN LBRACE
+method returns [ResultMethod result] : typeMethod Identifier LPAREN RPAREN LBRACE
     ( instr SEMI )*
     RBRACE
     ;
 
-instr:
+instr returns [ResultInstr result] :
     type decl_var ( ',' decl_var )* # DeclareVariable
     | Identifier ASSIGN expression # Affect
     ;
@@ -32,6 +35,7 @@ expression returns [ResultExpr expr] :
     | expression op=(MUL|DIV) expression  # OpMultDiv
     | expression op=(ADD|SUB) expression  # OpPlusMinus
     | Number                         # Number
+    | (TRUE|FALSE)                       # BooleanValue
     | Identifier                         # Ident
     ;
 
@@ -47,6 +51,8 @@ BOOLEAN : 'boolean';
 CLASS : 'class';
 INT : 'int';
 VOID : 'void';
+TRUE : 'true';
+FALSE : 'false';
 
 Number: [0-9]+ ;
 
