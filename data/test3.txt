@@ -1,6 +1,6 @@
 class SampleClass {
     int main(){
-        int a=4,b=8,c,d,e=7,f=false,g,h;
+        int a=4,b=8,c,d,e=7,f=false,g,h,k;
         a=8;
         b=a-2;
         c=a-b;
@@ -8,5 +8,6 @@ class SampleClass {
         f=true;
         g=false;
         h=a+9;
+        k= true || false && true;
     }
 }

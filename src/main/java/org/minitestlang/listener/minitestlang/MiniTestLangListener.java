@@ -4,7 +4,9 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.minitestlang.antlr.minitestlang.MinitestlangBaseListener;
 import org.minitestlang.antlr.minitestlang.MinitestlangParser;
-import org.minitestlang.ast.*;
+import org.minitestlang.ast.ClassAST;
+import org.minitestlang.ast.MethodAST;
+import org.minitestlang.ast.PositionAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.AffectAST;
 import org.minitestlang.ast.instr.DeclareAST;
@@ -21,7 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class MiniTestLangListener extends MinitestlangBaseListener {
@@ -88,35 +93,63 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
 
     @Override
     public void exitOpPlusMinus(MinitestlangParser.OpPlusMinusContext ctx) {
-        ExpressionAST left, right;
-        left = ctx.expression().get(0).expr.expr();
-        right = ctx.expression().get(1).expr.expr();
-        Operator op;
-        if (Objects.equals(ctx.op.getText(), "+")) {
-            op = Operator.ADD;
-        } else if (Objects.equals(ctx.op.getText(), "-")) {
-            op = Operator.SUB;
-        } else {
-            throw new IllegalArgumentException("Invalid operator " + ctx.op.getText());
-        }
-        BinaryOperatorExpressionAST binaryOperatorExpressionAST = new BinaryOperatorExpressionAST(left, right, op);
-        ctx.expr = new ResultExpr(binaryOperatorExpressionAST);
+        createBinaryExpression(ctx.expression().get(0), ctx.expression().get(1), ctx.op, ctx);
     }
 
     @Override
     public void exitOpMultDiv(MinitestlangParser.OpMultDivContext ctx) {
+        createBinaryExpression(ctx.expression().get(0), ctx.expression().get(1), ctx.op, ctx);
+    }
+
+    @Override
+    public void exitOpEquals(MinitestlangParser.OpEqualsContext ctx) {
+        createBinaryExpression(ctx.expression().get(0), ctx.expression().get(1), ctx.op, ctx);
+    }
+
+    @Override
+    public void exitOpAndOr(MinitestlangParser.OpAndOrContext ctx) {
+        createBinaryExpression(ctx.expression().get(0), ctx.expression().get(1), ctx.op, ctx);
+    }
+
+    private void createBinaryExpression(MinitestlangParser.ExpressionContext exprLeft,
+                                        MinitestlangParser.ExpressionContext exprRight,
+                                        Token operator, MinitestlangParser.ExpressionContext ctx) {
         ExpressionAST left, right;
-        left = ctx.expression().get(0).expr.expr();
-        right = ctx.expression().get(1).expr.expr();
+        left = exprLeft.expr.expr();
+        right = exprRight.expr.expr();
         Operator op;
-        if (Objects.equals(ctx.op.getText(), "*")) {
+        if (Objects.equals(operator.getText(), "+")) {
+            op = Operator.ADD;
+        } else if (Objects.equals(operator.getText(), "-")) {
+            op = Operator.SUB;
+        } else if (Objects.equals(operator.getText(), "*")) {
             op = Operator.MULT;
-        } else if (Objects.equals(ctx.op.getText(), "/")) {
+        } else if (Objects.equals(operator.getText(), "/")) {
             op = Operator.DIV;
+        } else if (Objects.equals(operator.getText(), "%")) {
+            op = Operator.MOD;
+        } else if (Objects.equals(operator.getText(), "&&")) {
+            op = Operator.AND;
+        } else if (Objects.equals(operator.getText(), "||")) {
+            op = Operator.OR;
+        } else if (Objects.equals(operator.getText(), "==")) {
+            op = Operator.EQUAL;
+        } else if (Objects.equals(operator.getText(), "!=")) {
+            op = Operator.NOTEQUAL;
+        } else if (Objects.equals(operator.getText(), "<=")) {
+            op = Operator.LE;
+        } else if (Objects.equals(operator.getText(), ">=")) {
+            op = Operator.GE;
+        } else if (Objects.equals(operator.getText(), ">")) {
+            op = Operator.GT;
+        } else if (Objects.equals(operator.getText(), "<")) {
+            op = Operator.LT;
         } else {
-            throw new IllegalArgumentException("Invalid operator " + ctx.op.getText());
+            throw new IllegalArgumentException("Invalid operator " + operator.getText() +
+                    " in position " + createPosition(operator));
         }
-        BinaryOperatorExpressionAST binaryOperatorExpressionAST = new BinaryOperatorExpressionAST(left, right, op);
+        BinaryOperatorExpressionAST binaryOperatorExpressionAST = new BinaryOperatorExpressionAST(
+                left, right, op, createPosition(operator));
         ctx.expr = new ResultExpr(binaryOperatorExpressionAST);
     }
 
@@ -161,7 +194,7 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
     }
 
     private PositionAST createPosition(Token token) {
-        return new PositionAST(token.getLine(), token.getCharPositionInLine()+1);
+        return new PositionAST(token.getLine(), token.getCharPositionInLine() + 1);
     }
 
     private TypeAST createType(Token token) {

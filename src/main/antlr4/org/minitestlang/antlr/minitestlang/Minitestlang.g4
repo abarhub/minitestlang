@@ -33,7 +33,9 @@ decl_var returns [ResultDeclVar expr] :
 expression returns [ResultExpr expr] :
     LPAREN expression RPAREN # ParentExpr
     | expression op=(MUL|DIV) expression  # OpMultDiv
-    | expression op=(ADD|SUB) expression  # OpPlusMinus
+    | expression op=(ADD|SUB|MOD) expression  # OpPlusMinus
+    | expression op=(AND|OR) expression  # OpAndOr
+    | expression op=(EQUAL|NOTEQUAL|LE|GE|GT|LT) expression  # OpEquals
     | Number                         # Number
     | (TRUE|FALSE)                       # BooleanValue
     | Identifier                         # Ident

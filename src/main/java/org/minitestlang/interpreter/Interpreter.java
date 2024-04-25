@@ -35,7 +35,7 @@ public class Interpreter {
                     LOGGER.debug("affect {} = {}", affect.getVariable(), affect.getExpression());
                     map.put(affect.getVariable(), value);
                 } else if (instr instanceof DeclareAST declareAST) {
-                    if(declareAST.value().isPresent()){
+                    if (declareAST.value().isPresent()) {
                         Value value = run(map, declareAST.value().get());
                         map.put(declareAST.name(), value);
                     }
@@ -76,13 +76,26 @@ public class Interpreter {
                     case SUB -> new IntValue(((IntValue) left).number() - ((IntValue) right).number());
                     case MULT -> new IntValue(((IntValue) left).number() * ((IntValue) right).number());
                     case DIV -> new IntValue(((IntValue) left).number() / ((IntValue) right).number());
+                    case MOD -> new IntValue(((IntValue) left).number() % ((IntValue) right).number());
+                    case AND -> new BoolValue(((BoolValue) left).value() && ((BoolValue) right).value());
+                    case OR -> new BoolValue(((BoolValue) left).value() || ((BoolValue) right).value());
+                    case EQUAL -> (left instanceof BoolValue) ?
+                            new BoolValue(((BoolValue) left).value() == ((BoolValue) right).value()) :
+                            new BoolValue(((IntValue) left).number() == ((IntValue) right).number());
+                    case NOTEQUAL -> (left instanceof BoolValue) ?
+                            new BoolValue(((BoolValue) left).value() != ((BoolValue) right).value()) :
+                            new BoolValue(((IntValue) left).number() != ((IntValue) right).number());
+                    case GE -> new BoolValue(((IntValue) left).number() >= ((IntValue) right).number());
+                    case LE -> new BoolValue(((IntValue) left).number() <= ((IntValue) right).number());
+                    case GT -> new BoolValue(((IntValue) left).number() > ((IntValue) right).number());
+                    case LT -> new BoolValue(((IntValue) left).number() < ((IntValue) right).number());
                 };
             }
             case null, default -> throw new InterpreterException("Error for evaluate expression");
         }
     }
 
-    public void addMethodListener(Consumer<Map<String, Value>> fun){
+    public void addMethodListener(Consumer<Map<String, Value>> fun) {
         methodListener.add(fun);
     }
 }

@@ -6,8 +6,13 @@ import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.AffectAST;
 import org.minitestlang.ast.instr.DeclareAST;
 import org.minitestlang.ast.instr.InstructionAST;
+import org.minitestlang.ast.type.BooleanTypeAST;
+import org.minitestlang.ast.type.IntTypeAST;
+import org.minitestlang.ast.type.TypeAST;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class Analyser {
 
@@ -42,7 +47,7 @@ public class Analyser {
         }
     }
 
-    private void analyser(ExpressionAST expression, Map<String, VarAnalyser> variables) throws AnalyserException {
+    private TypeAST analyser(ExpressionAST expression, Map<String, VarAnalyser> variables) throws AnalyserException {
         if (expression instanceof IdentExpressionAST identExpressionAST) {
             if (!variables.containsKey(identExpressionAST.name())) {
                 throw new AnalyserException("variable " + identExpressionAST.name() +
@@ -51,13 +56,37 @@ public class Analyser {
                 throw new AnalyserException("variable " + identExpressionAST.name() +
                         " is not affected in position " + identExpressionAST.position());
             }
-        } else if ((expression instanceof BooleanExpressionAST) || (expression instanceof NumberExpressionAST)) {
-            // no check
+            return variables.get(identExpressionAST.name()).getType();
+        } else if ((expression instanceof BooleanExpressionAST booleanExpressionAST)) {
+            return new BooleanTypeAST(booleanExpressionAST.position());
+        } else if (expression instanceof NumberExpressionAST numberExpressionAST) {
+            return new IntTypeAST(numberExpressionAST.position());
         } else if (expression instanceof BinaryOperatorExpressionAST binaryOperatorExpressionAST) {
-            analyser(binaryOperatorExpressionAST.left(), variables);
-            analyser(binaryOperatorExpressionAST.right(), variables);
+            var typeLeft = analyser(binaryOperatorExpressionAST.left(), variables);
+            var typeRight = analyser(binaryOperatorExpressionAST.right(), variables);
+            if (typeLeft instanceof BooleanTypeAST && typeRight instanceof BooleanTypeAST) {
+                // no error
+            } else if (typeLeft instanceof IntTypeAST && typeRight instanceof IntTypeAST) {
+                // no error
+            } else {
+                throw new AnalyserException("left and right types do not match in position " + binaryOperatorExpressionAST.position());
+            }
+            switch (binaryOperatorExpressionAST.operator()) {
+                case AND, OR, EQUAL, NOTEQUAL, GT, LT -> {
+                    if (!(typeLeft instanceof BooleanTypeAST)) {
+                        throw new AnalyserException("left type is not boolean");
+                    }
+                    if (!(typeRight instanceof BooleanTypeAST)) {
+                        throw new AnalyserException("right type is not boolean");
+                    }
+                    return new BooleanTypeAST(binaryOperatorExpressionAST.position());
+                }
+                default -> {
+                    return typeLeft;
+                }
+            }
         } else {
-            throw new AnalyserException("invalid expression");
+            throw new AnalyserException("invalid expression in position " + expression.position());
         }
     }
 
