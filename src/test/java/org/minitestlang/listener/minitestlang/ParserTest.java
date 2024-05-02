@@ -10,6 +10,8 @@ import org.minitestlang.utils.CollectionUtils;
 import java.io.IOException;
 import java.io.StringReader;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParserTest {
@@ -61,6 +63,10 @@ class ParserTest {
         assertInstanceOf(NumberExpressionAST.class, affect.getExpression());
         assertEquals(8, ((NumberExpressionAST) affect.getExpression()).number());
 
+        assertThat(classAst)
+                .extracting("name","positionClass.line","positionClass.column",
+                        "positionName.line","positionName.column")
+                .contains("SampleClass",1,1,1,7);
     }
 
     @Test
