@@ -228,13 +228,26 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
     }
 
     @Override
+    public void exitAppelInstr(MinitestlangParser.AppelInstrContext ctx) {
+        String nom = ctx.Identifier().getText();
+        List<ExpressionAST> listeExpr = new ArrayList<>();
+        if (ctx.expression() != null) {
+            listeExpr = ctx.expression().stream()
+                    .map(x -> x.expr.expr())
+                    .toList();
+        }
+        InstructionAST instr = new AppelAST(nom, listeExpr);
+        ctx.result = new ResultInstr(List.of(instr));
+    }
+
+    @Override
     public void exitParExpression(MinitestlangParser.ParExpressionContext ctx) {
         ctx.expr = ctx.expression().expr;
     }
 
     @Override
     public void exitBlockInstr(MinitestlangParser.BlockInstrContext ctx) {
-        var instr=new BlockAST(ctx.instr().stream()
+        var instr = new BlockAST(ctx.instr().stream()
                 .flatMap(x -> x.result.instructions().stream())
                 .toList());
         ctx.result = new ResultInstr(List.of(instr));

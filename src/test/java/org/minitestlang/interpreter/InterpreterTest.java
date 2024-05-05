@@ -277,4 +277,48 @@ class InterpreterTest {
         assertEquals(1, map.size());
         assertEquals(10, ((IntValue) map.get("a")).number());
     }
+
+    @Test
+    void runAppel() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=1;
+                    print(a);
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        interpreter.run(classAst);
+        assertEquals(1, map.size());
+        assertEquals(1, ((IntValue) map.get("a")).number());
+    }
+
+    @Test
+    void runAppel2() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=15;
+                    b=true;
+                    c=45+10;
+                    print(a,b,c);
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        interpreter.run(classAst);
+        assertEquals(3, map.size());
+        assertEquals(15, ((IntValue) map.get("a")).number());
+        assertTrue(((BoolValue) map.get("b")).value());
+        assertEquals(55, ((IntValue) map.get("c")).number());
+    }
 }

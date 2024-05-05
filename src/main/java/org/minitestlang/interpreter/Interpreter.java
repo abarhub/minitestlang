@@ -4,7 +4,6 @@ import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
-import org.minitestlang.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +72,31 @@ public class Interpreter {
                     }
                 }
             } else if (instr instanceof BlockAST blockAST) {
-                if(blockAST.instr()!=null){
+                if (blockAST.instr() != null) {
                     run(map, blockAST.instr());
+                }
+            } else if (instr instanceof AppelAST appelAST) {
+                if (Objects.equals(appelAST.name(), "print")) {
+                    String s = "";
+                    if (appelAST.parameters() != null) {
+                        var first = true;
+                        for (var param : appelAST.parameters()) {
+                            var value = run(map, param);
+                            if (first) {
+                                first = false;
+                            } else {
+                                s += ", ";
+                            }
+                            s += switch (value) {
+                                case null -> "null";
+                                case BoolValue b -> b.value() + "";
+                                case IntValue i -> i.number() + "";
+                                default -> throw new IllegalStateException("Unexpected value: " + value);
+                            };
+
+                        }
+                    }
+                    System.out.println(s);
                 }
             }
         }
