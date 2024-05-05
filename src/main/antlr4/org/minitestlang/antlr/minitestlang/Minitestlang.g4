@@ -15,14 +15,22 @@ classDef returns [ResultClass result] :
     RBRACE
     ;
 
-method returns [ResultMethod result] : typeMethod Identifier LPAREN RPAREN LBRACE
-    ( instr SEMI )*
+method returns [ResultMethod result] : typeMethod Identifier LPAREN RPAREN
+    LBRACE
+    ( instr  )*
     RBRACE
     ;
 
 instr returns [ResultInstr result] :
-    type decl_var ( ',' decl_var )* # DeclareVariable
-    | Identifier ASSIGN expression # Affect
+    type decl_var ( ',' decl_var )* SEMI # DeclareVariable
+    | Identifier ASSIGN expression SEMI # Affect
+    | IF parExpression instr (ELSE instr)?  # IfInstr
+    | WHILE parExpression instr  # WhileInstr
+    | LBRACE (instr)* RBRACE  # BlockInstr
+    ;
+
+parExpression returns [ResultExpr expr]:
+    LPAREN expression RPAREN
     ;
 
 decl_var returns [ResultDeclVar expr] :
@@ -55,6 +63,8 @@ INT : 'int';
 VOID : 'void';
 TRUE : 'true';
 FALSE : 'false';
+WHILE        : 'while';
+ELSE         : 'else';
 
 Number: [0-9]+ ;
 

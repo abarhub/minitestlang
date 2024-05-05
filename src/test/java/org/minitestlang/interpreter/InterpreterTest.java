@@ -79,4 +79,202 @@ class InterpreterTest {
         assertEquals(2, ((IntValue) map.get("c")).number());
         assertEquals(37, ((IntValue) map.get("d")).number());
     }
+
+    @Test
+    void runIf() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=1;
+                    b=2;
+                    c=3;
+                    if(a<b) {
+                        c=4;
+                    }
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        interpreter.run(classAst);
+        assertEquals(3, map.size());
+        assertEquals(1, ((IntValue) map.get("a")).number());
+        assertEquals(2, ((IntValue) map.get("b")).number());
+        assertEquals(4, ((IntValue) map.get("c")).number());
+    }
+
+
+    @Test
+    void runIf2() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=1;
+                    b=2;
+                    c=3;
+                    if(a>b) {
+                        c=4;
+                    }
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        interpreter.run(classAst);
+        assertEquals(3, map.size());
+        assertEquals(1, ((IntValue) map.get("a")).number());
+        assertEquals(2, ((IntValue) map.get("b")).number());
+        assertEquals(3, ((IntValue) map.get("c")).number());
+    }
+
+    @Test
+    void runIfElse() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=1;
+                    b=2;
+                    c=8;
+                    if(a<b) {
+                        c=6;
+                    } else {
+                        c=7;
+                    }
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        interpreter.run(classAst);
+        assertEquals(3, map.size());
+        assertEquals(1, ((IntValue) map.get("a")).number());
+        assertEquals(2, ((IntValue) map.get("b")).number());
+        assertEquals(6, ((IntValue) map.get("c")).number());
+    }
+
+    @Test
+    void runIfElse2() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=1;
+                    b=2;
+                    c=8;
+                    if(a>b) {
+                        c=6;
+                    } else {
+                        c=7;
+                    }
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        interpreter.run(classAst);
+        assertEquals(3, map.size());
+        assertEquals(1, ((IntValue) map.get("a")).number());
+        assertEquals(2, ((IntValue) map.get("b")).number());
+        assertEquals(7, ((IntValue) map.get("c")).number());
+    }
+
+
+    @Test
+    void runWhile() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=1;
+                    while(a<3){
+                        a=a+1;
+                    }
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        interpreter.run(classAst);
+        assertEquals(1, map.size());
+        assertEquals(3, ((IntValue) map.get("a")).number());
+    }
+
+    @Test
+    void runWhile2() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=1;
+                    while(a<2){
+                        a=a+1;
+                    }
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        interpreter.run(classAst);
+        assertEquals(1, map.size());
+        assertEquals(2, ((IntValue) map.get("a")).number());
+    }
+
+    @Test
+    void runWhile3() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=1;
+                    while(a<0){
+                        a=a+1;
+                    }
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        interpreter.run(classAst);
+        assertEquals(1, map.size());
+        assertEquals(1, ((IntValue) map.get("a")).number());
+    }
+
+    @Test
+    void runWhile4() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=1;
+                    while(a<10){
+                        a=a+1;
+                    }
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        interpreter.run(classAst);
+        assertEquals(1, map.size());
+        assertEquals(10, ((IntValue) map.get("a")).number());
+    }
 }

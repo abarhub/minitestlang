@@ -3,9 +3,8 @@ package org.minitestlang.interpreter;
 import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.expr.*;
-import org.minitestlang.ast.instr.AffectAST;
-import org.minitestlang.ast.instr.DeclareAST;
-import org.minitestlang.ast.instr.InstructionAST;
+import org.minitestlang.ast.instr.*;
+import org.minitestlang.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,21 +28,54 @@ public class Interpreter {
     private void run(MethodAST methodAST) throws InterpreterException {
         if (methodAST.getInstructions() != null) {
             Map<String, Value> map = new HashMap<>();
-            for (InstructionAST instr : methodAST.getInstructions()) {
-                if (instr instanceof AffectAST affect) {
-                    Value value = run(map, affect.getExpression());
-                    LOGGER.debug("affect {} = {}", affect.getVariable(), affect.getExpression());
-                    map.put(affect.getVariable(), value);
-                } else if (instr instanceof DeclareAST declareAST) {
-                    if (declareAST.value().isPresent()) {
-                        Value value = run(map, declareAST.value().get());
-                        map.put(declareAST.name(), value);
-                    }
-                }
-            }
+            run(map, methodAST.getInstructions());
             LOGGER.info("methode {} : {}", methodAST.getName(), map);
             for (var listener : methodListener) {
                 listener.accept(map);
+            }
+        }
+    }
+
+    private void run(Map<String, Value> map, List<InstructionAST> instructions) throws InterpreterException {
+        for (InstructionAST instr : instructions) {
+            if (instr instanceof AffectAST affect) {
+                Value value = run(map, affect.getExpression());
+                LOGGER.debug("affect {} = {}", affect.getVariable(), affect.getExpression());
+                map.put(affect.getVariable(), value);
+            } else if (instr instanceof DeclareAST declareAST) {
+                if (declareAST.value().isPresent()) {
+                    Value value = run(map, declareAST.value().get());
+                    map.put(declareAST.name(), value);
+                }
+            } else if (instr instanceof IfAST ifAST) {
+                Value value = run(map, ifAST.expr());
+                if (value instanceof BoolValue boolValue) {
+                    if (boolValue.value()) {
+                        run(map, ifAST.block());
+                    } else if (ifAST.elseBlock() != null) {
+                        run(map, ifAST.elseBlock());
+                    }
+                } else {
+                    throw new InterpreterException("invalide if expression");
+                }
+            } else if (instr instanceof WhileAST whileAST) {
+                boolean fin = false;
+                while (!fin) {
+                    Value value = run(map, whileAST.expr());
+                    if (value instanceof BoolValue boolValue) {
+                        if (boolValue.value()) {
+                            run(map, whileAST.block());
+                        } else {
+                            fin = true;
+                        }
+                    } else {
+                        throw new InterpreterException("invalide if expression");
+                    }
+                }
+            } else if (instr instanceof BlockAST blockAST) {
+                if(blockAST.instr()!=null){
+                    run(map, blockAST.instr());
+                }
             }
         }
     }

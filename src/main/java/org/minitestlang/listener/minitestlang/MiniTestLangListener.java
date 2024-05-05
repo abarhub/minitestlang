@@ -8,9 +8,7 @@ import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.PositionAST;
 import org.minitestlang.ast.expr.*;
-import org.minitestlang.ast.instr.AffectAST;
-import org.minitestlang.ast.instr.DeclareAST;
-import org.minitestlang.ast.instr.InstructionAST;
+import org.minitestlang.ast.instr.*;
 import org.minitestlang.ast.type.BooleanTypeAST;
 import org.minitestlang.ast.type.IntTypeAST;
 import org.minitestlang.ast.type.TypeAST;
@@ -187,6 +185,59 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
         affectAST.setExpression(expr);
         affectAST.setPositionVariable(createPosition(ctx.Identifier().getSymbol()));
         ctx.result = new ResultInstr(List.of(affectAST));
+    }
+
+    @Override
+    public void exitIfInstr(MinitestlangParser.IfInstrContext ctx) {
+        ExpressionAST expr = null;
+        if (ctx.parExpression() != null) {
+            expr = ctx.parExpression().expr.expr();
+        }
+        List<InstructionAST> instructionsIf = new ArrayList<>();
+        List<InstructionAST> instructionsElse = new ArrayList<>();
+        if (ctx.instr() != null) {
+            if (!ctx.instr().isEmpty() &&
+                    ctx.instr().get(0).result != null &&
+                    ctx.instr().get(0).result.instructions() != null) {
+                instructionsIf = ctx.instr().get(0).result.instructions();
+            }
+            if (ctx.instr().size() > 1 &&
+                    ctx.instr().get(1).result != null &&
+                    ctx.instr().get(1).result.instructions() != null) {
+                instructionsElse = ctx.instr().get(1).result.instructions();
+            }
+        }
+        var instr = new IfAST(expr,
+                instructionsIf,
+                instructionsElse);
+        ctx.result = new ResultInstr(List.of(instr));
+    }
+
+    @Override
+    public void exitWhileInstr(MinitestlangParser.WhileInstrContext ctx) {
+        ExpressionAST expr = null;
+        if (ctx.parExpression() != null) {
+            expr = ctx.parExpression().expr.expr();
+        }
+        List<InstructionAST> instructionAST = new ArrayList<>();
+        if (ctx.instr() != null) {
+            instructionAST = ctx.instr().result.instructions();
+        }
+        var instr = new WhileAST(expr, instructionAST);
+        ctx.result = new ResultInstr(List.of(instr));
+    }
+
+    @Override
+    public void exitParExpression(MinitestlangParser.ParExpressionContext ctx) {
+        ctx.expr = ctx.expression().expr;
+    }
+
+    @Override
+    public void exitBlockInstr(MinitestlangParser.BlockInstrContext ctx) {
+        var instr=new BlockAST(ctx.instr().stream()
+                .flatMap(x -> x.result.instructions().stream())
+                .toList());
+        ctx.result = new ResultInstr(List.of(instr));
     }
 
     public ClassAST getClassAST() {
