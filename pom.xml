@@ -13,10 +13,17 @@
     <groupId>org.minitestlang</groupId>
     <artifactId>minitestlang</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>minitestlang</name>
     <url>http://maven.apache.org</url>
+
+    <modules>
+        <module>parser</module>
+        <module>interpreter</module>
+        <module>llvm</module>
+        <module>core</module>
+    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,27 +32,54 @@
         <junit.version>5.10.1</junit.version>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <version>${antlr4.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>antlr4</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+    <dependencyManagement>
 
-        </plugins>
-    </build>
+        <dependencies>
+            <dependency>
+                <groupId>org.minitestlang</groupId>
+                <artifactId>parser</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.minitestlang</groupId>
+                <artifactId>interpreter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.minitestlang</groupId>
+                <artifactId>llvm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.minitestlang</groupId>
+                <artifactId>core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+
+    </dependencyManagement>
+
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--            </plugin>-->
+<!--            <plugin>-->
+<!--                <groupId>org.antlr</groupId>-->
+<!--                <artifactId>antlr4-maven-plugin</artifactId>-->
+<!--                <version>${antlr4.version}</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>antlr4</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+
+<!--        </plugins>-->
+<!--    </build>-->
 
     <dependencies>
 

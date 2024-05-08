@@ -39,8 +39,11 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
 
         classAST = new ClassAST();
         classAST.setName(ctx.Identifier().getText());
-        if (ctx.method() != null && ctx.method().result != null && ctx.method().result.method() != null) {
-            classAST.setMethods(List.of(ctx.method().result.method()));
+        if (ctx.method() != null) {
+            var liste = ctx.method().stream()
+                    .map(x -> x.result.method())
+                    .toList();
+            classAST.setMethods(liste);
         }
         classAST.setPositionClass(createPosition(ctx.CLASS().getSymbol()));
         classAST.setPositionName(createPosition(ctx.Identifier().getSymbol()));

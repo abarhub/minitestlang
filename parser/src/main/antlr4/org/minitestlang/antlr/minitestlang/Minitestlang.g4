@@ -11,7 +11,7 @@ import org.minitestlang.listener.minitestlang.result.ResultInstr;
 
 classDef returns [ResultClass result] :
     CLASS Identifier LBRACE 
-      method
+      (method )*
     RBRACE
     ;
 
