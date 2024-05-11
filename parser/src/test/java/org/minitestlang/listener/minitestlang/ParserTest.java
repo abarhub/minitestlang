@@ -202,6 +202,16 @@ class ParserTest {
                 .extracting(
                         "variable", "expression.number")
                 .contains(tuple("a", 7));
+        assertThat(method.getInstructions())
+                .element(2)
+                .extracting("block")
+                .asList()
+                .element(0)
+                .extracting("instr")
+                .asList()
+                .extracting(
+                        "variable", "expression.number")
+                .contains(tuple("a", 7));
         assertThat(((BlockAST) ((IfAST) method.getInstructions().get(2)).elseBlock().get(0)).instr())
                 .extracting(
                         "variable", "expression.number")
@@ -216,6 +226,8 @@ class ParserTest {
                 .extracting(
                         "variable", "expression.number")
                 .contains(tuple("b", 15));
+
+        //AffectAST affectAST = (AffectAST) method.getInstructions().get(1);
 
     }
 }
