@@ -8,9 +8,8 @@ import org.minitestlang.ast.type.BooleanTypeAST;
 import org.minitestlang.ast.type.IntTypeAST;
 import org.minitestlang.ast.type.TypeAST;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public class Analyser {
@@ -21,78 +20,84 @@ public class Analyser {
             throw new AnalyserException("no main method in class " + ast.getName() + " in position " + ast.getName());
         }
         analyser(optMethod.get());
+        for (MethodAST method : ast.getMethods()) {
+            if (!Objects.equals(method.getName(), "main")) {
+                analyser(method);
+            }
+        }
     }
 
     private void analyser(MethodAST methodAST) throws AnalyserException {
         if (methodAST.getInstructions() != null) {
-            Map<String, VarAnalyser> variables = new HashMap<>();
+            SymbolTable variables = new SymbolTable();
             analyser(methodAST.getInstructions(), variables);
         }
     }
 
     private void analyser(List<InstructionAST> instructions,
-                          Map<String, VarAnalyser> variables) throws AnalyserException {
+                          SymbolTable variables) throws AnalyserException {
         for (InstructionAST instr : instructions) {
-            if (instr instanceof AffectAST affect) {
-                analyser(affect.getExpression(), variables);
-                if (!variables.containsKey(affect.getVariable())) {
-                    throw new AnalyserException("variable " + affect.getVariable() +
-                            " is not declared in position " + affect.getPositionVariable());
+            switch (instr) {
+                case AffectAST affect -> {
+                    analyser(affect.getExpression(), variables);
+                    if (!variables.has(affect.getVariable())) {
+                        throw new AnalyserException("variable " + affect.getVariable() +
+                                " is not declared in position " + affect.getPositionVariable());
+                    }
+                    variables.get(affect.getVariable()).setAffected(true);
                 }
-                variables.get(affect.getVariable()).setAffected(true);
-            } else if (instr instanceof DeclareAST declareAST) {
-                if (variables.containsKey(declareAST.name())) {
-                    throw new AnalyserException("variable " + declareAST.name() +
-                            " is not already declared in position " + declareAST.positionAST());
+                case DeclareAST declareAST -> {
+                    if (variables.has(declareAST.name())) {
+                        throw new AnalyserException("variable " + declareAST.name() +
+                                " is not already declared in position " + declareAST.positionAST());
+                    }
+                    variables.put(declareAST.name(), new VarAnalyser(declareAST.type(),
+                            declareAST.value().isPresent()));
                 }
-                variables.put(declareAST.name(), new VarAnalyser(declareAST.type(),
-                        declareAST.value().isPresent()));
-            } else if (instr instanceof BlockAST blockAST) {
-                if (blockAST.instr() != null) {
-                    Map<String, VarAnalyser> variables2 = new HashMap<>();
-                    variables2.putAll(variables);
-                    analyser(blockAST.instr(), variables2);
+                case BlockAST blockAST -> {
+                    if (blockAST.instr() != null) {
+                        SymbolTable variables2 = new SymbolTable(variables);
+                        analyser(blockAST.instr(), variables2);
+                    }
                 }
-            } else if (instr instanceof IfAST ifAST) {
-                TypeAST expr = analyser(ifAST.expr(), variables);
-                if (expr == null) {
-                    throw new AnalyserException("expression invalide");
-                } else if (!(expr instanceof BooleanTypeAST)) {
-                    throw new AnalyserException("expression invalide");
+                case IfAST ifAST -> {
+                    TypeAST expr = analyser(ifAST.expr(), variables);
+                    if (expr == null) {
+                        throw new AnalyserException("expression invalide");
+                    } else if (!(expr instanceof BooleanTypeAST)) {
+                        throw new AnalyserException("expression invalide");
+                    }
+                    if (ifAST.block() != null) {
+                        SymbolTable variables2 = new SymbolTable(variables);
+                        analyser(ifAST.block(), variables2);
+                    }
+                    if (ifAST.elseBlock() != null) {
+                        SymbolTable variables2 = new SymbolTable(variables);
+                        analyser(ifAST.elseBlock(), variables2);
+                    }
                 }
-                if (ifAST.block() != null) {
-                    Map<String, VarAnalyser> variables2 = new HashMap<>();
-                    variables2.putAll(variables);
-                    analyser(ifAST.block(), variables2);
+                case WhileAST whileAST -> {
+                    TypeAST expr = analyser(whileAST.expr(), variables);
+                    if (expr == null) {
+                        throw new AnalyserException("expression invalide");
+                    } else if (!(expr instanceof BooleanTypeAST)) {
+                        throw new AnalyserException("expression invalide");
+                    }
+                    if (whileAST.block() != null) {
+                        SymbolTable variables2 = new SymbolTable(variables);
+                        analyser(whileAST.block(), variables2);
+                    }
                 }
-                if (ifAST.elseBlock() != null) {
-                    Map<String, VarAnalyser> variables2 = new HashMap<>();
-                    variables2.putAll(variables);
-                    analyser(ifAST.elseBlock(), variables2);
-                }
-            } else if (instr instanceof WhileAST whileAST) {
-                TypeAST expr = analyser(whileAST.expr(), variables);
-                if (expr == null) {
-                    throw new AnalyserException("expression invalide");
-                } else if (!(expr instanceof BooleanTypeAST)) {
-                    throw new AnalyserException("expression invalide");
-                }
-                if (whileAST.block() != null) {
-                    Map<String, VarAnalyser> variables2 = new HashMap<>();
-                    variables2.putAll(variables);
-                    analyser(whileAST.block(), variables2);
-                }
-            } else {
-                throw new AnalyserException("invalid instruction");
+                case null, default -> throw new AnalyserException("invalid instruction");
             }
         }
     }
 
 
-    private TypeAST analyser(ExpressionAST expression, Map<String, VarAnalyser> variables) throws AnalyserException {
+    private TypeAST analyser(ExpressionAST expression, SymbolTable variables) throws AnalyserException {
         switch (expression) {
             case IdentExpressionAST identExpressionAST -> {
-                if (!variables.containsKey(identExpressionAST.name())) {
+                if (!variables.has(identExpressionAST.name())) {
                     throw new AnalyserException("variable " + identExpressionAST.name() +
                             " is not declared in position " + identExpressionAST.position());
                 } else if (!variables.get(identExpressionAST.name()).isAffected()) {
@@ -110,13 +115,6 @@ public class Analyser {
             case BinaryOperatorExpressionAST binaryOperatorExpressionAST -> {
                 var typeLeft = analyser(binaryOperatorExpressionAST.left(), variables);
                 var typeRight = analyser(binaryOperatorExpressionAST.right(), variables);
-                if (typeLeft instanceof BooleanTypeAST && typeRight instanceof BooleanTypeAST) {
-                    // no error
-                } else if (typeLeft instanceof IntTypeAST && typeRight instanceof IntTypeAST) {
-                    // no error
-                } else {
-                    throw new AnalyserException("left and right types do not match in position " + binaryOperatorExpressionAST.position());
-                }
                 switch (binaryOperatorExpressionAST.operator()) {
                     case AND, OR, EQUAL, NOTEQUAL, GT, LT -> {
                         if (!(typeLeft instanceof BooleanTypeAST)) {
@@ -128,12 +126,23 @@ public class Analyser {
                         return new BooleanTypeAST(binaryOperatorExpressionAST.position());
                     }
                     default -> {
+                        if (typeLeft instanceof BooleanTypeAST && typeRight instanceof BooleanTypeAST) {
+                            // no error
+                        } else if (typeLeft instanceof IntTypeAST && typeRight instanceof IntTypeAST) {
+                            // no error
+                        } else {
+                            throw new AnalyserException("left and right types do not match in position " + binaryOperatorExpressionAST.position());
+                        }
                         return typeLeft;
                     }
                 }
             }
-            case null, default ->
-                    throw new AnalyserException("invalid expression in position " + expression.position());
+            case null -> {
+                throw new AnalyserException("invalid expression ");
+            }
+            default -> {
+                throw new AnalyserException("invalid expression in position " + expression.position());
+            }
         }
     }
 
