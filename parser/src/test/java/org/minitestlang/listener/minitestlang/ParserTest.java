@@ -4,10 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.expr.*;
-import org.minitestlang.ast.instr.AffectAST;
-import org.minitestlang.ast.instr.BlockAST;
-import org.minitestlang.ast.instr.IfAST;
-import org.minitestlang.ast.instr.WhileAST;
+import org.minitestlang.ast.instr.*;
 import org.minitestlang.utils.CollectionUtils;
 
 import java.io.IOException;
@@ -125,7 +122,6 @@ class ParserTest {
         assertEquals(3, ((NumberExpressionAST) right.right()).number());
     }
 
-
     @Test
     void parse4() throws IOException {
         // ARRANGE
@@ -198,7 +194,8 @@ class ParserTest {
                 .extracting("expr.operator", "expr.left.name", "expr.right.number"
                 )
                 .contains(Operator.LT, "a", 5);
-        assertThat(((BlockAST) ((IfAST) method.getInstructions().get(2)).block().get(0)).instr())
+        assertEquals(1, ((IfAST) method.getInstructions().get(2)).block().size());
+        assertThat(((BlockAST) ((IfAST) method.getInstructions().get(2)).block().getFirst()).instr())
                 .extracting(
                         "variable", "expression.number")
                 .contains(tuple("a", 7));
@@ -212,7 +209,8 @@ class ParserTest {
                 .extracting(
                         "variable", "expression.number")
                 .contains(tuple("a", 7));
-        assertThat(((BlockAST) ((IfAST) method.getInstructions().get(2)).elseBlock().get(0)).instr())
+        assertEquals(1, ((IfAST) method.getInstructions().get(2)).block().size());
+        assertThat(((BlockAST) ((IfAST) method.getInstructions().get(2)).elseBlock().getFirst()).instr())
                 .extracting(
                         "variable", "expression.number")
                 .contains(tuple("a", 8));
@@ -222,12 +220,50 @@ class ParserTest {
                 .isInstanceOf(WhileAST.class)
                 .extracting("expr.operator", "expr.left.name", "expr.right.number")
                 .contains(Operator.LT, "b", 10);
-        assertThat(((BlockAST) ((WhileAST) method.getInstructions().get(3)).block().get(0)).instr())
+        assertEquals(1, ((WhileAST) method.getInstructions().get(3)).block().size());
+        assertThat(((BlockAST) ((WhileAST) method.getInstructions().get(3)).block().getFirst()).instr())
                 .extracting(
                         "variable", "expression.number")
                 .contains(tuple("b", 15));
+    }
 
-        //AffectAST affectAST = (AffectAST) method.getInstructions().get(1);
+    @Test
+    void parse5() throws IOException {
+        // ARRANGE
+        String javaClassContent = """
+                class SampleClass {
+                int DoSomething(){
+                    a=10;
+                    b=30;
+                    print(a,b);
+                }
+                }""";
+        Parser parser = new Parser();
 
+        // ACT
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
+        assertNotNull(classAst);
+        assertEquals("SampleClass", classAst.getName());
+        MethodAST method = classAst.getMethods().getFirst();
+        assertEquals("DoSomething", method.getName());
+        assertEquals(3, method.getInstructions().size());
+        assertInstanceOf(AffectAST.class, method.getInstructions().getFirst());
+        AffectAST affect = (AffectAST) method.getInstructions().getFirst();
+        assertEquals("a", affect.getVariable());
+        assertInstanceOf(NumberExpressionAST.class, affect.getExpression());
+        assertEquals(10, ((NumberExpressionAST) affect.getExpression()).number());
+        affect = (AffectAST) method.getInstructions().get(1);
+        assertEquals("b", affect.getVariable());
+        assertInstanceOf(NumberExpressionAST.class, affect.getExpression());
+        assertEquals(30, ((NumberExpressionAST) affect.getExpression()).number());
+        AppelAST appelAST = (AppelAST) method.getInstructions().get(2);
+        assertEquals("print", appelAST.name());
+        assertEquals(2, appelAST.parameters().size());
+        assertInstanceOf(IdentExpressionAST.class, appelAST.parameters().get(0));
+        assertEquals("a", ((IdentExpressionAST) appelAST.parameters().get(0)).name());
+        assertInstanceOf(IdentExpressionAST.class, appelAST.parameters().get(1));
+        assertEquals("b", ((IdentExpressionAST) appelAST.parameters().get(1)).name());
     }
 }
