@@ -16,6 +16,8 @@ public class Interpreter {
 
     private final List<Consumer<Map<String, Value>>> methodListener = new ArrayList<>();
 
+    private final List<Consumer<String>> printListener = new ArrayList<>();
+
     public void run(ClassAST ast) throws InterpreterException {
         Optional<MethodAST> optMethod = ast.getMethod("main");
         if (optMethod.isEmpty()) {
@@ -97,6 +99,11 @@ public class Interpreter {
                         }
                     }
                     System.out.println(s);
+                    for (var listener : printListener) {
+                        listener.accept(s);
+                    }
+                } else {
+                    throw new IllegalStateException("invalide method : " + appelAST.name());
                 }
             }
         }
@@ -151,5 +158,9 @@ public class Interpreter {
 
     public void addMethodListener(Consumer<Map<String, Value>> fun) {
         methodListener.add(fun);
+    }
+
+    public void addPrintListener(Consumer<String> fun) {
+        printListener.add(fun);
     }
 }

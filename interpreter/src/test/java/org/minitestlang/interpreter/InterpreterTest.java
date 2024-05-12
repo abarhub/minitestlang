@@ -5,7 +5,9 @@ import org.minitestlang.ast.ClassAST;
 import org.minitestlang.listener.minitestlang.Parser;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -293,9 +295,12 @@ class InterpreterTest {
         Interpreter interpreter = new Interpreter();
         Map<String, Value> map = new HashMap<>();
         interpreter.addMethodListener(map::putAll);
+        List<String> listePrint = new ArrayList<>();
+        interpreter.addPrintListener(listePrint::add);
         interpreter.run(classAst);
         assertEquals(1, map.size());
         assertEquals(1, ((IntValue) map.get("a")).number());
+        assertIterableEquals(List.of("1"), listePrint);
     }
 
     @Test
@@ -315,10 +320,45 @@ class InterpreterTest {
         Interpreter interpreter = new Interpreter();
         Map<String, Value> map = new HashMap<>();
         interpreter.addMethodListener(map::putAll);
+        List<String> listePrint = new ArrayList<>();
+        interpreter.addPrintListener(listePrint::add);
         interpreter.run(classAst);
         assertEquals(3, map.size());
         assertEquals(15, ((IntValue) map.get("a")).number());
         assertTrue(((BoolValue) map.get("b")).value());
         assertEquals(55, ((IntValue) map.get("c")).number());
+        assertIterableEquals(List.of("15, true, 55"), listePrint);
     }
+
+
+    @Test
+    void runAppel3() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a=15;
+                    b=true;
+                    c=45+10;
+                    print(a);
+                    print(b);
+                    print(c);
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        List<String> listePrint = new ArrayList<>();
+        interpreter.addPrintListener(listePrint::add);
+        interpreter.run(classAst);
+        assertEquals(3, map.size());
+        assertEquals(15, ((IntValue) map.get("a")).number());
+        assertTrue(((BoolValue) map.get("b")).value());
+        assertEquals(55, ((IntValue) map.get("c")).number());
+        assertIterableEquals(List.of("15", "true", "55"), listePrint);
+    }
+
+
 }
