@@ -23,13 +23,13 @@ public class Interpreter {
         if (optMethod.isEmpty()) {
             throw new InterpreterException("no main method in class " + ast.getName());
         }
-        run(optMethod.get());
+        run(optMethod.get(), ast);
     }
 
-    private void run(MethodAST methodAST) throws InterpreterException {
+    private void run(MethodAST methodAST, ClassAST ast) throws InterpreterException {
         if (methodAST.getInstructions() != null) {
             Map<String, Value> map = new HashMap<>();
-            run(map, methodAST.getInstructions());
+            run(map, methodAST.getInstructions(), ast);
             LOGGER.info("methode {} : {}", methodAST.getName(), map);
             for (var listener : methodListener) {
                 listener.accept(map);
@@ -37,7 +37,7 @@ public class Interpreter {
         }
     }
 
-    private void run(Map<String, Value> map, List<InstructionAST> instructions) throws InterpreterException {
+    private void run(Map<String, Value> map, List<InstructionAST> instructions, ClassAST ast) throws InterpreterException {
         for (InstructionAST instr : instructions) {
             if (instr instanceof AffectAST affect) {
                 Value value = run(map, affect.getExpression());
@@ -52,9 +52,9 @@ public class Interpreter {
                 Value value = run(map, ifAST.expr());
                 if (value instanceof BoolValue boolValue) {
                     if (boolValue.value()) {
-                        run(map, ifAST.block());
+                        run(map, ifAST.block(), ast);
                     } else if (ifAST.elseBlock() != null) {
-                        run(map, ifAST.elseBlock());
+                        run(map, ifAST.elseBlock(), ast);
                     }
                 } else {
                     throw new InterpreterException("invalide if expression");
@@ -65,7 +65,7 @@ public class Interpreter {
                     Value value = run(map, whileAST.expr());
                     if (value instanceof BoolValue boolValue) {
                         if (boolValue.value()) {
-                            run(map, whileAST.block());
+                            run(map, whileAST.block(), ast);
                         } else {
                             fin = true;
                         }
@@ -75,7 +75,7 @@ public class Interpreter {
                 }
             } else if (instr instanceof BlockAST blockAST) {
                 if (blockAST.instr() != null) {
-                    run(map, blockAST.instr());
+                    run(map, blockAST.instr(), ast);
                 }
             } else if (instr instanceof AppelAST appelAST) {
                 if (Objects.equals(appelAST.name(), "print")) {
@@ -103,7 +103,12 @@ public class Interpreter {
                         listener.accept(s);
                     }
                 } else {
-                    throw new IllegalStateException("invalide method : " + appelAST.name());
+                    Optional<MethodAST> optMethod = ast.getMethod(appelAST.name());
+                    if (optMethod.isEmpty()) {
+                        throw new InterpreterException("invalide method : " + ast.getName());
+                    } else {
+                        run(optMethod.get(), ast);
+                    }
                 }
             }
         }
