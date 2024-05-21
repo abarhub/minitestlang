@@ -385,5 +385,30 @@ class InterpreterTest {
         assertIterableEquals(List.of("3", "5"), listePrint);
     }
 
+    @Test
+    void runAppel5() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a="abc";
+                    b="xxxxxx";
+                    print(a);
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        List<String> listePrint = new ArrayList<>();
+        interpreter.addPrintListener(listePrint::add);
+        interpreter.run(classAst);
+        assertEquals(2, map.size());
+        assertEquals("abc", ((StringValue) map.get("a")).string());
+        assertEquals("xxxxxx", ((StringValue) map.get("b")).string());
+        assertIterableEquals(List.of("abc"), listePrint);
+    }
+
 
 }

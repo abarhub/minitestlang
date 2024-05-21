@@ -6,7 +6,9 @@ import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
 import org.minitestlang.ast.type.BooleanTypeAST;
 import org.minitestlang.ast.type.IntTypeAST;
+import org.minitestlang.ast.type.StringTypeAST;
 import org.minitestlang.ast.type.TypeAST;
+import org.minitestlang.utils.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,23 +21,23 @@ public class Analyser {
         if (optMethod.isEmpty()) {
             throw new AnalyserException("no main method in class " + ast.getName() + " in position " + ast.getName());
         }
-        analyser(optMethod.get());
+        analyser(optMethod.get(), ast);
         for (MethodAST method : ast.getMethods()) {
             if (!Objects.equals(method.getName(), "main")) {
-                analyser(method);
+                analyser(method, ast);
             }
         }
     }
 
-    private void analyser(MethodAST methodAST) throws AnalyserException {
+    private void analyser(MethodAST methodAST, ClassAST ast) throws AnalyserException {
         if (methodAST.getInstructions() != null) {
             SymbolTable variables = new SymbolTable();
-            analyser(methodAST.getInstructions(), variables);
+            analyser(methodAST.getInstructions(), variables, ast);
         }
     }
 
     private void analyser(List<InstructionAST> instructions,
-                          SymbolTable variables) throws AnalyserException {
+                          SymbolTable variables, ClassAST ast) throws AnalyserException {
         for (InstructionAST instr : instructions) {
             switch (instr) {
                 case AffectAST affect -> {
@@ -57,7 +59,7 @@ public class Analyser {
                 case BlockAST blockAST -> {
                     if (blockAST.instr() != null) {
                         SymbolTable variables2 = new SymbolTable(variables);
-                        analyser(blockAST.instr(), variables2);
+                        analyser(blockAST.instr(), variables2, ast);
                     }
                 }
                 case IfAST ifAST -> {
@@ -69,11 +71,11 @@ public class Analyser {
                     }
                     if (ifAST.block() != null) {
                         SymbolTable variables2 = new SymbolTable(variables);
-                        analyser(ifAST.block(), variables2);
+                        analyser(ifAST.block(), variables2, ast);
                     }
                     if (ifAST.elseBlock() != null) {
                         SymbolTable variables2 = new SymbolTable(variables);
-                        analyser(ifAST.elseBlock(), variables2);
+                        analyser(ifAST.elseBlock(), variables2, ast);
                     }
                 }
                 case WhileAST whileAST -> {
@@ -85,7 +87,22 @@ public class Analyser {
                     }
                     if (whileAST.block() != null) {
                         SymbolTable variables2 = new SymbolTable(variables);
-                        analyser(whileAST.block(), variables2);
+                        analyser(whileAST.block(), variables2, ast);
+                    }
+                }
+                case AppelAST appelAST -> {
+                    if(CollectionUtils.size(appelAST.parameters())>0){
+                        for(var expr:appelAST.parameters()){
+                            analyser(expr, variables);
+                        }
+                    }
+                    if(Objects.equals(appelAST.name(),"print")){
+                        // la méthode existe;
+                    } else{
+                        var optMethod=ast.getMethod(appelAST.name());
+                        if(optMethod.isEmpty()){
+                            throw new AnalyserException("method not found");
+                        }
                     }
                 }
                 case null, default -> throw new AnalyserException("invalid instruction");
@@ -137,12 +154,11 @@ public class Analyser {
                     }
                 }
             }
-            case null -> {
-                throw new AnalyserException("invalid expression ");
+            case null -> throw new AnalyserException("invalid expression ");
+            case StringAST stringAST -> {
+                return new StringTypeAST(stringAST.position());
             }
-            default -> {
-                throw new AnalyserException("invalid expression in position " + expression.position());
-            }
+            default -> throw new AnalyserException("invalid expression in position " + expression.position());
         }
     }
 

@@ -17,6 +17,7 @@ import org.minitestlang.listener.minitestlang.result.ResultClass;
 import org.minitestlang.listener.minitestlang.result.ResultExpr;
 import org.minitestlang.listener.minitestlang.result.ResultInstr;
 import org.minitestlang.listener.minitestlang.result.ResultMethod;
+import org.minitestlang.utils.VerifyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -176,6 +177,17 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
     }
 
     @Override
+    public void exitStr(MinitestlangParser.StrContext ctx) {
+        String str = ctx.getText();
+        VerifyUtils.verify(str.startsWith("\""), "string bad");
+        VerifyUtils.verify(str.endsWith("\""), "string bad");
+        VerifyUtils.verify(str.length() >= 2, "string bad");
+        str = str.substring(1, str.length() - 1);
+        StringAST stringAST = new StringAST(str, createPosition(ctx.getStart()));
+        ctx.expr = new ResultExpr(stringAST);
+    }
+
+    @Override
     public void exitParentExpr(MinitestlangParser.ParentExprContext ctx) {
         // ne rien faire
     }
@@ -255,6 +267,7 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
                 .toList());
         ctx.result = new ResultInstr(List.of(instr));
     }
+
 
     public ClassAST getClassAST() {
         return classAST;

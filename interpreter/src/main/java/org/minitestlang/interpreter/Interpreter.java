@@ -93,6 +93,7 @@ public class Interpreter {
                                 case null -> "null";
                                 case BoolValue b -> b.value() + "";
                                 case IntValue i -> i.number() + "";
+                                case StringValue s2 -> s2.string();
                                 default -> throw new IllegalStateException("Unexpected value: " + value);
                             };
 
@@ -128,6 +129,9 @@ public class Interpreter {
                 } else {
                     throw new InterpreterException("Variable " + ident.name() + " not initialized");
                 }
+            }
+            case StringAST stringAST -> {
+                return new StringValue(stringAST.str());
             }
             case BinaryOperatorExpressionAST bin -> {
                 var left = run(map, bin.left());
