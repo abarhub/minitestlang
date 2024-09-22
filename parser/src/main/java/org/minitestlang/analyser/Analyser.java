@@ -4,10 +4,7 @@ import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
-import org.minitestlang.ast.type.BooleanTypeAST;
-import org.minitestlang.ast.type.IntTypeAST;
-import org.minitestlang.ast.type.StringTypeAST;
-import org.minitestlang.ast.type.TypeAST;
+import org.minitestlang.ast.type.*;
 import org.minitestlang.utils.CollectionUtils;
 
 import java.util.List;
@@ -157,6 +154,9 @@ public class Analyser {
             case null -> throw new AnalyserException("invalid expression ");
             case StringAST stringAST -> {
                 return new StringTypeAST(stringAST.position());
+            }
+            case CharExpressionAST charExpressionAST -> {
+                return new CharTypeAST(charExpressionAST.position());
             }
             default -> throw new AnalyserException("invalid expression in position " + expression.position());
         }

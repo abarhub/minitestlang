@@ -293,4 +293,31 @@ class ParserTest {
         assertInstanceOf(StringAST.class, affect.getExpression());
         assertEquals("abc", ((StringAST) affect.getExpression()).str());
     }
+
+    @Test
+    void parse7() throws IOException {
+        // ARRANGE
+        String javaClassContent = """
+                class SampleClass {
+                int DoSomething(){
+                    a='a';
+                }
+                }""";
+        Parser parser = new Parser();
+
+        // ACT
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
+        assertNotNull(classAst);
+        assertEquals("SampleClass", classAst.getName());
+        MethodAST method = classAst.getMethods().getFirst();
+        assertEquals("DoSomething", method.getName());
+        assertEquals(1, method.getInstructions().size());
+        assertInstanceOf(AffectAST.class, method.getInstructions().getFirst());
+        AffectAST affect = (AffectAST) method.getInstructions().getFirst();
+        assertEquals("a", affect.getVariable());
+        assertInstanceOf(CharExpressionAST.class, affect.getExpression());
+        assertEquals('a', ((CharExpressionAST) affect.getExpression()).value());
+    }
 }

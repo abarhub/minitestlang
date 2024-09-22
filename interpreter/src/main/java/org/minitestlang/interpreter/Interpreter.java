@@ -111,6 +111,9 @@ public class Interpreter {
             case StringAST stringAST -> {
                 return new StringValue(stringAST.str());
             }
+            case CharExpressionAST charAST -> {
+                return new CharValue(charAST.value());
+            }
             case BinaryOperatorExpressionAST bin -> {
                 var left = run(map, bin.left());
                 var right = run(map, bin.right());

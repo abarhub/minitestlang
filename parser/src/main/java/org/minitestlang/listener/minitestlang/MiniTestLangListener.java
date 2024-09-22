@@ -9,10 +9,7 @@ import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.PositionAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
-import org.minitestlang.ast.type.BooleanTypeAST;
-import org.minitestlang.ast.type.IntTypeAST;
-import org.minitestlang.ast.type.TypeAST;
-import org.minitestlang.ast.type.VoidTypeAST;
+import org.minitestlang.ast.type.*;
 import org.minitestlang.listener.minitestlang.result.ResultClass;
 import org.minitestlang.listener.minitestlang.result.ResultExpr;
 import org.minitestlang.listener.minitestlang.result.ResultInstr;
@@ -184,6 +181,17 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
         VerifyUtils.verify(str.length() >= 2, "string bad");
         str = str.substring(1, str.length() - 1);
         StringAST stringAST = new StringAST(str, createPosition(ctx.getStart()));
+        ctx.expr = new ResultExpr(stringAST);
+    }
+
+    @Override
+    public void exitChr(MinitestlangParser.ChrContext ctx) {
+        String str = ctx.getText();
+        VerifyUtils.verify(str.startsWith("'"), "char bad");
+        VerifyUtils.verify(str.endsWith("'"), "char bad");
+        VerifyUtils.verify(str.length() == 3, "char bad");
+        str = str.substring(1, str.length() - 1);
+        CharExpressionAST stringAST = new CharExpressionAST(str.charAt(0), createPosition(ctx.getStart()));
         ctx.expr = new ResultExpr(stringAST);
     }
 

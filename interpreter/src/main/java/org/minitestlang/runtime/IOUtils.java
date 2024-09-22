@@ -29,6 +29,7 @@ public class IOUtils {
                     case BoolValue b -> b.value() + "";
                     case IntValue i -> i.number() + "";
                     case StringValue s2 -> s2.string();
+                    case CharValue c -> c.value();
                     default -> throw new IllegalStateException("Unexpected value: " + value);
                 });
 

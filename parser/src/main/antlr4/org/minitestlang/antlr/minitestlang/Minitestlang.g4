@@ -48,8 +48,19 @@ expression returns [ResultExpr expr] :
     | Number                         # Number
     | (TRUE|FALSE)                       # BooleanValue
     | Identifier                         # Ident
-    | StringLiteral          # Str
+    | StringLiteral                      # Str
+    | CharacterLiteral                   # Chr
     ;
+
+CharacterLiteral
+	:	'\'' SingleCharacter '\''
+	|	'\'' EscapeSequence '\''
+	;
+
+fragment
+SingleCharacter
+	:	~['\\]
+	;
 
 StringLiteral
 	:	'"' StringCharacters? '"'
@@ -136,7 +147,7 @@ HexDigitOrUnderscore
 	;
 
 
-type: BOOLEAN | INT ;
+type: BOOLEAN | INT | CHAR | Identifier ;
 
 typeMethod: type | VOID ;
 
@@ -151,6 +162,7 @@ TRUE : 'true';
 FALSE : 'false';
 WHILE        : 'while';
 ELSE         : 'else';
+CHAR    :  'char';
 
 Number: [0-9]+ ;
 
