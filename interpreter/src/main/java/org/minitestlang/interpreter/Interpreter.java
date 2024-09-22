@@ -4,6 +4,7 @@ import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
+import org.minitestlang.runtime.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,7 @@ public class Interpreter {
 
     private final List<Consumer<Map<String, Value>>> methodListener = new ArrayList<>();
 
-    private final List<Consumer<String>> printListener = new ArrayList<>();
+    private final IOUtils ioUtils = new IOUtils();
 
     public void run(ClassAST ast) throws InterpreterException {
         Optional<MethodAST> optMethod = ast.getMethod("main");
@@ -79,30 +80,7 @@ public class Interpreter {
                 }
             } else if (instr instanceof AppelAST appelAST) {
                 if (Objects.equals(appelAST.name(), "print")) {
-                    String s = "";
-                    if (appelAST.parameters() != null) {
-                        var first = true;
-                        for (var param : appelAST.parameters()) {
-                            var value = run(map, param);
-                            if (first) {
-                                first = false;
-                            } else {
-                                s += ", ";
-                            }
-                            s += switch (value) {
-                                case null -> "null";
-                                case BoolValue b -> b.value() + "";
-                                case IntValue i -> i.number() + "";
-                                case StringValue s2 -> s2.string();
-                                default -> throw new IllegalStateException("Unexpected value: " + value);
-                            };
-
-                        }
-                    }
-                    System.out.println(s);
-                    for (var listener : printListener) {
-                        listener.accept(s);
-                    }
+                    ioUtils.print(appelAST.parameters(), map, this::run);
                 } else {
                     Optional<MethodAST> optMethod = ast.getMethod(appelAST.name());
                     if (optMethod.isEmpty()) {
@@ -170,6 +148,6 @@ public class Interpreter {
     }
 
     public void addPrintListener(Consumer<String> fun) {
-        printListener.add(fun);
+        ioUtils.addPrintLister(fun);
     }
 }
