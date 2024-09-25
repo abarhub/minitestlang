@@ -9,7 +9,10 @@ import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.PositionAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
-import org.minitestlang.ast.type.*;
+import org.minitestlang.ast.type.BooleanTypeAST;
+import org.minitestlang.ast.type.IntTypeAST;
+import org.minitestlang.ast.type.TypeAST;
+import org.minitestlang.ast.type.VoidTypeAST;
 import org.minitestlang.listener.minitestlang.result.ResultClass;
 import org.minitestlang.listener.minitestlang.result.ResultExpr;
 import org.minitestlang.listener.minitestlang.result.ResultInstr;
@@ -253,13 +256,22 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
     @Override
     public void exitAppelInstr(MinitestlangParser.AppelInstrContext ctx) {
         String nom = ctx.Identifier().getText();
+        Optional<ExpressionAST> object = Optional.empty();
         List<ExpressionAST> listeExpr = new ArrayList<>();
         if (ctx.expression() != null) {
             listeExpr = ctx.expression().stream()
                     .map(x -> x.expr.expr())
                     .toList();
+            var listeDOT = ctx.DOT();
+            if (!CollectionUtils.isEmpty(listeDOT) && !CollectionUtils.isEmpty(listeExpr)) {
+                var expr = listeExpr.getFirst();
+                if (expr != null) {
+                    object = Optional.of(expr);
+                    listeExpr=listeExpr.subList(1, listeExpr.size());
+                }
+            }
         }
-        InstructionAST instr = new AppelAST(nom, listeExpr);
+        InstructionAST instr = new AppelAST(object, nom, listeExpr);
         ctx.result = new ResultInstr(List.of(instr));
     }
 

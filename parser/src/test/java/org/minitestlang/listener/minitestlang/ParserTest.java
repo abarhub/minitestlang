@@ -1,5 +1,6 @@
 package org.minitestlang.listener.minitestlang;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
@@ -202,10 +203,10 @@ class ParserTest {
         assertThat(method.getInstructions())
                 .element(2)
                 .extracting("block")
-                .asList()
+                .asInstanceOf(InstanceOfAssertFactories.LIST)
                 .element(0)
                 .extracting("instr")
-                .asList()
+                .asInstanceOf(InstanceOfAssertFactories.LIST)
                 .extracting(
                         "variable", "expression.number")
                 .contains(tuple("a", 7));
@@ -319,5 +320,103 @@ class ParserTest {
         assertEquals("a", affect.getVariable());
         assertInstanceOf(CharExpressionAST.class, affect.getExpression());
         assertEquals('a', ((CharExpressionAST) affect.getExpression()).value());
+    }
+
+    @Test
+    void parse8() throws IOException {
+        // ARRANGE
+        String javaClassContent = """
+                class SampleClass {
+                int DoSomething(){
+                    x.print(1,2);
+                }
+                }""";
+        Parser parser = new Parser();
+
+        // ACT
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
+        assertNotNull(classAst);
+        assertEquals("SampleClass", classAst.getName());
+        MethodAST method = classAst.getMethods().getFirst();
+        assertEquals("DoSomething", method.getName());
+        assertEquals(1, method.getInstructions().size());
+        assertInstanceOf(AppelAST.class, method.getInstructions().getFirst());
+        AppelAST appel = (AppelAST) method.getInstructions().getFirst();
+        assertTrue(appel.object().isPresent());
+        IdentExpressionAST ident = (IdentExpressionAST) appel.object().get();
+        assertInstanceOf(IdentExpressionAST.class, ident);
+        assertEquals("x", ident.name());
+        assertEquals("print", appel.name());
+        assertNotNull(appel.parameters());
+        assertEquals(2, appel.parameters().size());
+        assertInstanceOf(NumberExpressionAST.class, appel.parameters().get(0));
+        assertEquals(1, ((NumberExpressionAST) appel.parameters().get(0)).number());
+        assertInstanceOf(NumberExpressionAST.class, appel.parameters().get(1));
+        assertEquals(2, ((NumberExpressionAST) appel.parameters().get(1)).number());
+    }
+
+    @Test
+    void parse9() throws IOException {
+        // ARRANGE
+        String javaClassContent = """
+                class SampleClass {
+                int DoSomething(){
+                    x.print();
+                }
+                }""";
+        Parser parser = new Parser();
+
+        // ACT
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
+        assertNotNull(classAst);
+        assertEquals("SampleClass", classAst.getName());
+        MethodAST method = classAst.getMethods().getFirst();
+        assertEquals("DoSomething", method.getName());
+        assertEquals(1, method.getInstructions().size());
+        assertInstanceOf(AppelAST.class, method.getInstructions().getFirst());
+        AppelAST appel = (AppelAST) method.getInstructions().getFirst();
+        assertTrue(appel.object().isPresent());
+        IdentExpressionAST ident = (IdentExpressionAST) appel.object().get();
+        assertInstanceOf(IdentExpressionAST.class, ident);
+        assertEquals("x", ident.name());
+        assertEquals("print", appel.name());
+        assertNotNull(appel.parameters());
+        assertEquals(0, appel.parameters().size());
+    }
+
+    @Test
+    void parse10() throws IOException {
+        // ARRANGE
+        String javaClassContent = """
+                class SampleClass {
+                int DoSomething(){
+                    print(5,8);
+                }
+                }""";
+        Parser parser = new Parser();
+
+        // ACT
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
+        assertNotNull(classAst);
+        assertEquals("SampleClass", classAst.getName());
+        MethodAST method = classAst.getMethods().getFirst();
+        assertEquals("DoSomething", method.getName());
+        assertEquals(1, method.getInstructions().size());
+        assertInstanceOf(AppelAST.class, method.getInstructions().getFirst());
+        AppelAST appel = (AppelAST) method.getInstructions().getFirst();
+        assertFalse(appel.object().isPresent());
+        assertEquals("print", appel.name());
+        assertNotNull(appel.parameters());
+        assertEquals(2, appel.parameters().size());
+        assertInstanceOf(NumberExpressionAST.class, appel.parameters().get(0));
+        assertEquals(5, ((NumberExpressionAST) appel.parameters().get(0)).number());
+        assertInstanceOf(NumberExpressionAST.class, appel.parameters().get(1));
+        assertEquals(8, ((NumberExpressionAST) appel.parameters().get(1)).number());
     }
 }
