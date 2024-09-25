@@ -3,7 +3,7 @@ package org.minitestlang.ast.instr;
 import org.minitestlang.ast.PositionAST;
 import org.minitestlang.ast.expr.ExpressionAST;
 
-public class AffectAST implements InstructionAST {
+public final class AffectAST implements InstructionAST {
 
     private String variable;
     private ExpressionAST expression;

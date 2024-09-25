@@ -1,4 +1,5 @@
 package org.minitestlang.ast.type;
 
-public interface TypeAST {
+public sealed interface TypeAST permits BooleanTypeAST, CharTypeAST, IntTypeAST,
+        ObjetTypeAST, StringTypeAST, VoidTypeAST {
 }

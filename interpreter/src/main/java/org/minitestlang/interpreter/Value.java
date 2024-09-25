@@ -1,4 +1,4 @@
 package org.minitestlang.interpreter;
 
-public interface Value {
+public sealed interface Value permits BoolValue, CharValue, IntValue, StringValue {
 }

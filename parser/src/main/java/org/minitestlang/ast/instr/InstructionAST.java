@@ -1,4 +1,4 @@
 package org.minitestlang.ast.instr;
 
-public interface InstructionAST {
+public sealed interface InstructionAST permits AffectAST, AppelAST, BlockAST, DeclareAST, IfAST, WhileAST {
 }
