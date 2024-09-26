@@ -81,6 +81,8 @@ public class Interpreter {
             } else if (instr instanceof AppelAST appelAST) {
                 if (Objects.equals(appelAST.name(), "print")) {
                     ioUtils.print(appelAST.parameters(), map, this::run);
+                }else if (appelAST.object().isPresent()&&Objects.equals(appelAST.name(), "length")) {
+
                 } else {
                     Optional<MethodAST> optMethod = ast.getMethod(appelAST.name());
                     if (optMethod.isEmpty()) {

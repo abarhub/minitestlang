@@ -88,16 +88,29 @@ public class Analyser {
                     }
                 }
                 case AppelAST appelAST -> {
-                    if(CollectionUtils.size(appelAST.parameters())>0){
-                        for(var expr:appelAST.parameters()){
+                    Optional<TypeAST> object = Optional.empty();
+                    if (appelAST.object().isPresent()) {
+                        var type = analyser(appelAST.object().get(), variables);
+                        if (type == null) {
+                            throw new AnalyserException("appel object not found");
+                        } else if (type instanceof StringTypeAST) {
+                            object = Optional.of(type);
+                        } else {
+                            throw new AnalyserException("type invalide");
+                        }
+                    }
+                    if (CollectionUtils.size(appelAST.parameters()) > 0) {
+                        for (var expr : appelAST.parameters()) {
                             analyser(expr, variables);
                         }
                     }
-                    if(Objects.equals(appelAST.name(),"print")){
+                    if (Objects.equals(appelAST.name(), "print")) {
                         // la méthode existe;
-                    } else{
-                        var optMethod=ast.getMethod(appelAST.name());
-                        if(optMethod.isEmpty()){
+                    } else if (object.isPresent() && object.get() instanceof StringTypeAST && Objects.equals(appelAST.name(), "length")) {
+                        // la méthode existe;
+                    } else {
+                        var optMethod = ast.getMethod(appelAST.name());
+                        if (optMethod.isEmpty()) {
                             throw new AnalyserException("method not found");
                         }
                     }
