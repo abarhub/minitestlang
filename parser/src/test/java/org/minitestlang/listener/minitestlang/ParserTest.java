@@ -1,5 +1,6 @@
 package org.minitestlang.listener.minitestlang;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.minitestlang.ast.ClassAST;
@@ -546,5 +547,26 @@ class ParserTest {
         assertEquals(2, appel.parameters().size());
         assertEquals(8, ((NumberExpressionAST) appel.parameters().get(0)).number());
         assertEquals(10, ((NumberExpressionAST) appel.parameters().get(1)).number());
+    }
+
+
+    @Test
+    void parse15() {
+        // ARRANGE
+        String javaClassContent = """
+                class SampleClass {
+                int DoSomething(){
+                    a
+                }
+                }""";
+        Parser parser = new Parser();
+
+        // ACT
+        ParseCancellationException exception = assertThrows(ParseCancellationException.class,
+                () -> parser.parse(new StringReader(javaClassContent)));
+
+        // ASSERT
+        assertEquals("line 4:0 no viable alternative at input 'a\\n}'",
+                exception.getMessage());
     }
 }

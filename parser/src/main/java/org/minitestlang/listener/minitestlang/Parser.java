@@ -17,11 +17,13 @@ public class Parser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Parser.class);
 
-    public ClassAST parse(Reader reader) throws IOException,ListenerException {
+    public ClassAST parse(Reader reader) throws IOException, ListenerException {
         MinitestlangLexer minitestlangLexer = new MinitestlangLexer(CharStreams.fromReader(reader));
+        minitestlangLexer.addErrorListener(ThrowingErrorListener.INSTANCE);
 
         CommonTokenStream tokens = new CommonTokenStream(minitestlangLexer);
         MinitestlangParser parser = new MinitestlangParser(tokens);
+        parser.addErrorListener(ThrowingErrorListener.INSTANCE);
         ParseTree tree = parser.main();
 
         ParseTreeWalker walker = new ParseTreeWalker();

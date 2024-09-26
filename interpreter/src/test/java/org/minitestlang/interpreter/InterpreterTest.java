@@ -1,5 +1,6 @@
 package org.minitestlang.interpreter;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.jupiter.api.Test;
 import org.minitestlang.ast.ClassAST;
 import org.minitestlang.listener.minitestlang.Parser;
@@ -486,7 +487,7 @@ class InterpreterTest {
     }
 
     @Test
-    void runErreur1() throws Exception {
+    void runErreur1() {
         String javaClassContent = """
                 class SampleClass {
                 int main(){
@@ -494,18 +495,11 @@ class InterpreterTest {
                 }
                 }""";
         Parser parser = new Parser();
-        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
-        assertNotNull(classAst);
-        Interpreter interpreter = new Interpreter();
-        Map<String, Value> map = new HashMap<>();
-        interpreter.addMethodListener(map::putAll);
-        List<String> listePrint = new ArrayList<>();
-        interpreter.addPrintListener(listePrint::add);
-        interpreter.run(classAst);
-        assertEquals(2, map.size());
-        assertEquals(3, ((IntValue) map.get("a")).number());
-        assertEquals("xxxxxx", ((StringValue) map.get("b")).string());
-        assertIterableEquals(List.of("3"), listePrint);
+        ParseCancellationException exception = assertThrows(ParseCancellationException.class,
+                () -> parser.parse(new StringReader(javaClassContent)));
+
+        assertEquals("line 4:0 no viable alternative at input 'a\\n}'",
+                exception.getMessage());
     }
 
 
