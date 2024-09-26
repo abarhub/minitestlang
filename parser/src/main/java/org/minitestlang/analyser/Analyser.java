@@ -171,6 +171,26 @@ public class Analyser {
             case CharExpressionAST charExpressionAST -> {
                 return new CharTypeAST(charExpressionAST.position());
             }
+            case AppelExpressionAST appelExpressionAST -> {
+                TypeAST objet = null;
+                if (appelExpressionAST.objet().isPresent()) {
+                    objet = analyser(appelExpressionAST.objet().get(), variables);
+                    if (objet == null) {
+                        throw new AnalyserException("appel object not found");
+                    }
+                }
+                if (CollectionUtils.size(appelExpressionAST.parameters()) > 0) {
+                    for (var expr : appelExpressionAST.parameters()) {
+                        analyser(expr, variables);
+                    }
+                }
+                if (objet instanceof StringTypeAST &&
+                        Objects.equals(appelExpressionAST.nom(), "length") &&
+                        CollectionUtils.size(appelExpressionAST.parameters()) == 0) {
+                    return new IntTypeAST(appelExpressionAST.position());
+                }
+                throw new AnalyserException("appel object not found in position" + expression.position());
+            }
             default -> throw new AnalyserException("invalid expression in position " + expression.position());
         }
     }

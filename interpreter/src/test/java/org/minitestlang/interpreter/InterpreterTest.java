@@ -442,7 +442,7 @@ class InterpreterTest {
                 int main(){
                     a='M';
                     b='g';
-                    "abc.length();
+                    "abc".length();
                 }
                 }""";
         Parser parser = new Parser();
@@ -458,6 +458,54 @@ class InterpreterTest {
         assertEquals('M', ((CharValue) map.get("a")).value());
         assertEquals('g', ((CharValue) map.get("b")).value());
         assertIterableEquals(List.of(), listePrint);
+    }
+
+    @Test
+    void runAppel8() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a="abc".length();
+                    b="xxxxxx";
+                    print(a);
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        List<String> listePrint = new ArrayList<>();
+        interpreter.addPrintListener(listePrint::add);
+        interpreter.run(classAst);
+        assertEquals(2, map.size());
+        assertEquals(3, ((IntValue) map.get("a")).number());
+        assertEquals("xxxxxx", ((StringValue) map.get("b")).string());
+        assertIterableEquals(List.of("3"), listePrint);
+    }
+
+    @Test
+    void runErreur1() throws Exception {
+        String javaClassContent = """
+                class SampleClass {
+                int main(){
+                    a
+                }
+                }""";
+        Parser parser = new Parser();
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+        assertNotNull(classAst);
+        Interpreter interpreter = new Interpreter();
+        Map<String, Value> map = new HashMap<>();
+        interpreter.addMethodListener(map::putAll);
+        List<String> listePrint = new ArrayList<>();
+        interpreter.addPrintListener(listePrint::add);
+        interpreter.run(classAst);
+        assertEquals(2, map.size());
+        assertEquals(3, ((IntValue) map.get("a")).number());
+        assertEquals("xxxxxx", ((StringValue) map.get("b")).string());
+        assertIterableEquals(List.of("3"), listePrint);
     }
 
 

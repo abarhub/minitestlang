@@ -204,6 +204,36 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
     }
 
     @Override
+    public void exitAppel(MinitestlangParser.AppelContext ctx) {
+        String nom = ctx.Identifier().getText();
+        List<ExpressionAST> liste = List.of();
+        var listeParam = ctx.expression();
+        if (!CollectionUtils.isEmpty(listeParam)) {
+            liste = listeParam.stream()
+                    .map(x -> x.expr.expr())
+                    .toList();
+        }
+        AppelExpressionAST appelExpressionAST = new AppelExpressionAST(Optional.empty(), nom, liste, createPosition(ctx.getStart()));
+        ctx.expr = new ResultExpr(appelExpressionAST);
+    }
+
+    @Override
+    public void exitAppelObjet(MinitestlangParser.AppelObjetContext ctx) {
+        String nom = ctx.Identifier().getText();
+        List<ExpressionAST> liste;
+        var listeParam = ctx.expression();
+        VerifyUtils.verify(!CollectionUtils.isEmpty(listeParam), "param empty");
+        var objet = listeParam.getFirst().expr.expr();
+        liste = listeParam.stream()
+                .skip(1)
+                .map(x -> x.expr.expr())
+                .toList();
+
+        AppelExpressionAST appelExpressionAST = new AppelExpressionAST(Optional.of(objet), nom, liste, createPosition(ctx.getStart()));
+        ctx.expr = new ResultExpr(appelExpressionAST);
+    }
+
+    @Override
     public void exitAffect(MinitestlangParser.AffectContext ctx) {
         AffectAST affectAST = new AffectAST();
         affectAST.setVariable(ctx.Identifier().getText());
@@ -263,11 +293,11 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
                     .map(x -> x.expr.expr())
                     .toList();
             var dot = ctx.DOT();
-            if (dot!=null && !CollectionUtils.isEmpty(listeExpr)) {
+            if (dot != null && !CollectionUtils.isEmpty(listeExpr)) {
                 var expr = listeExpr.getFirst();
                 if (expr != null) {
                     object = Optional.of(expr);
-                    listeExpr=listeExpr.subList(1, listeExpr.size());
+                    listeExpr = listeExpr.subList(1, listeExpr.size());
                 }
             }
         }

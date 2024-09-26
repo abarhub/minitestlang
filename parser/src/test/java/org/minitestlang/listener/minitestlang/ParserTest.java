@@ -419,4 +419,132 @@ class ParserTest {
         assertInstanceOf(NumberExpressionAST.class, appel.parameters().get(1));
         assertEquals(8, ((NumberExpressionAST) appel.parameters().get(1)).number());
     }
+
+    @Test
+    void parse11() throws IOException {
+        // ARRANGE
+        String javaClassContent = """
+                class SampleClass {
+                int DoSomething(){
+                    a="abc".length();
+                }
+                }""";
+        Parser parser = new Parser();
+
+        // ACT
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
+        assertNotNull(classAst);
+        assertEquals("SampleClass", classAst.getName());
+        MethodAST method = classAst.getMethods().getFirst();
+        assertEquals("DoSomething", method.getName());
+        assertEquals(1, method.getInstructions().size());
+        assertInstanceOf(AffectAST.class, method.getInstructions().getFirst());
+        AffectAST affect = (AffectAST) method.getInstructions().getFirst();
+        assertEquals("a", affect.getVariable());
+        assertInstanceOf(AppelExpressionAST.class, affect.getExpression());
+        var appel = (AppelExpressionAST) affect.getExpression();
+        assertEquals("length", appel.nom());
+        assertTrue(appel.objet().isPresent());
+        assertInstanceOf(StringAST.class, appel.objet().get());
+        assertEquals("abc", ((StringAST) appel.objet().get()).str());
+        assertEquals(0, appel.parameters().size());
+    }
+
+    @Test
+    void parse12() throws IOException {
+        // ARRANGE
+        String javaClassContent = """
+                class SampleClass {
+                int DoSomething(){
+                    a=call(7,4);
+                }
+                }""";
+        Parser parser = new Parser();
+
+        // ACT
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
+        assertNotNull(classAst);
+        assertEquals("SampleClass", classAst.getName());
+        MethodAST method = classAst.getMethods().getFirst();
+        assertEquals("DoSomething", method.getName());
+        assertEquals(1, method.getInstructions().size());
+        assertInstanceOf(AffectAST.class, method.getInstructions().getFirst());
+        AffectAST affect = (AffectAST) method.getInstructions().getFirst();
+        assertEquals("a", affect.getVariable());
+        assertInstanceOf(AppelExpressionAST.class, affect.getExpression());
+        var appel = (AppelExpressionAST) affect.getExpression();
+        assertEquals("call", appel.nom());
+        assertTrue(appel.objet().isEmpty());
+        assertEquals(2, appel.parameters().size());
+        assertEquals(7, ((NumberExpressionAST) appel.parameters().get(0)).number());
+        assertEquals(4, ((NumberExpressionAST) appel.parameters().get(1)).number());
+    }
+
+    @Test
+    void parse13() throws IOException {
+        // ARRANGE
+        String javaClassContent = """
+                class SampleClass {
+                int DoSomething(){
+                    a=call();
+                }
+                }""";
+        Parser parser = new Parser();
+
+        // ACT
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
+        assertNotNull(classAst);
+        assertEquals("SampleClass", classAst.getName());
+        MethodAST method = classAst.getMethods().getFirst();
+        assertEquals("DoSomething", method.getName());
+        assertEquals(1, method.getInstructions().size());
+        assertInstanceOf(AffectAST.class, method.getInstructions().getFirst());
+        AffectAST affect = (AffectAST) method.getInstructions().getFirst();
+        assertEquals("a", affect.getVariable());
+        assertInstanceOf(AppelExpressionAST.class, affect.getExpression());
+        var appel = (AppelExpressionAST) affect.getExpression();
+        assertEquals("call", appel.nom());
+        assertTrue(appel.objet().isEmpty());
+        assertEquals(0, appel.parameters().size());
+    }
+
+    @Test
+    void parse14() throws IOException {
+        // ARRANGE
+        String javaClassContent = """
+                class SampleClass {
+                int DoSomething(){
+                    a="abc".length(8,10);
+                }
+                }""";
+        Parser parser = new Parser();
+
+        // ACT
+        ClassAST classAst = parser.parse(new StringReader(javaClassContent));
+
+        // ASSERT
+        assertNotNull(classAst);
+        assertEquals("SampleClass", classAst.getName());
+        MethodAST method = classAst.getMethods().getFirst();
+        assertEquals("DoSomething", method.getName());
+        assertEquals(1, method.getInstructions().size());
+        assertInstanceOf(AffectAST.class, method.getInstructions().getFirst());
+        AffectAST affect = (AffectAST) method.getInstructions().getFirst();
+        assertEquals("a", affect.getVariable());
+        assertInstanceOf(AppelExpressionAST.class, affect.getExpression());
+        var appel = (AppelExpressionAST) affect.getExpression();
+        assertEquals("length", appel.nom());
+        assertTrue(appel.objet().isPresent());
+        assertInstanceOf(StringAST.class, appel.objet().get());
+        assertEquals("abc", ((StringAST) appel.objet().get()).str());
+        assertEquals(2, appel.parameters().size());
+        assertEquals(8, ((NumberExpressionAST) appel.parameters().get(0)).number());
+        assertEquals(10, ((NumberExpressionAST) appel.parameters().get(1)).number());
+    }
 }

@@ -5,6 +5,7 @@ import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
 import org.minitestlang.runtime.IOUtils;
+import org.minitestlang.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +82,7 @@ public class Interpreter {
             } else if (instr instanceof AppelAST appelAST) {
                 if (Objects.equals(appelAST.name(), "print")) {
                     ioUtils.print(appelAST.parameters(), map, this::run);
-                }else if (appelAST.object().isPresent()&&Objects.equals(appelAST.name(), "length")) {
+                } else if (appelAST.object().isPresent() && Objects.equals(appelAST.name(), "length")) {
 
                 } else {
                     Optional<MethodAST> optMethod = ast.getMethod(appelAST.name());
@@ -143,6 +144,30 @@ public class Interpreter {
                     case GT -> new BoolValue(((IntValue) left).number() > ((IntValue) right).number());
                     case LT -> new BoolValue(((IntValue) left).number() < ((IntValue) right).number());
                 };
+            }
+            case AppelExpressionAST appelAST -> {
+                Value objet = null;
+                if (appelAST.objet().isPresent()) {
+                    objet = run(map, appelAST.objet().get());
+                    if (objet == null) {
+                        throw new InterpreterException("Invalide object expression");
+                    }
+                }
+                List<Value> param = new ArrayList<>();
+                if (CollectionUtils.size(appelAST.parameters()) > 0) {
+                    for (var value : appelAST.parameters()) {
+                        var v = run(map, value);
+                        param.add(v);
+                    }
+                }
+                if (objet != null) {
+                    if (objet instanceof StringValue str) {
+                        if (Objects.equals(appelAST.nom(), "length") && CollectionUtils.size(param) == 0) {
+                            return new IntValue(str.string().length());
+                        }
+                    }
+                }
+                throw new InterpreterException("Invalide call expression");
             }
             case null, default -> throw new InterpreterException("Error for evaluate expression");
         }

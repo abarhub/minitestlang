@@ -27,7 +27,7 @@ instr returns [ResultInstr result] :
     | IF parExpression instr (ELSE instr)?  # IfInstr
     | WHILE parExpression instr  # WhileInstr
     | LBRACE (instr)* RBRACE  # BlockInstr
-    | (expression '.')? Identifier LPAREN ( expression ( COMMA expression )* )? RPAREN SEMI # AppelInstr
+    | (expression DOT)? Identifier LPAREN ( expression ( COMMA expression )* )? RPAREN SEMI # AppelInstr
     ;
 
 parExpression returns [ResultExpr expr]:
@@ -45,11 +45,13 @@ expression returns [ResultExpr expr] :
     | expression op=(ADD|SUB|MOD) expression  # OpPlusMinus
     | expression op=(AND|OR) expression  # OpAndOr
     | expression op=(EQUAL|NOTEQUAL|LE|GE|GT|LT) expression  # OpEquals
+    | expression DOT Identifier  LPAREN ( expression ( COMMA expression )* )? RPAREN  # AppelObjet
     | Number                         # Number
     | (TRUE|FALSE)                       # BooleanValue
     | Identifier                         # Ident
     | StringLiteral                      # Str
     | CharacterLiteral                   # Chr
+    | Identifier  LPAREN ( expression ( COMMA expression )* )? RPAREN                        # Appel
     ;
 
 CharacterLiteral
