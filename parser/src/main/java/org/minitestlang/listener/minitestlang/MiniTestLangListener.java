@@ -262,8 +262,8 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
             listeExpr = ctx.expression().stream()
                     .map(x -> x.expr.expr())
                     .toList();
-            var listeDOT = ctx.DOT();
-            if (!CollectionUtils.isEmpty(listeDOT) && !CollectionUtils.isEmpty(listeExpr)) {
+            var dot = ctx.DOT();
+            if (dot!=null && !CollectionUtils.isEmpty(listeExpr)) {
                 var expr = listeExpr.getFirst();
                 if (expr != null) {
                     object = Optional.of(expr);

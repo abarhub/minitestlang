@@ -27,7 +27,7 @@ instr returns [ResultInstr result] :
     | IF parExpression instr (ELSE instr)?  # IfInstr
     | WHILE parExpression instr  # WhileInstr
     | LBRACE (instr)* RBRACE  # BlockInstr
-    | (expression '.')* Identifier LPAREN ( expression ( COMMA expression )* )? RPAREN SEMI # AppelInstr
+    | (expression '.')? Identifier LPAREN ( expression ( COMMA expression )* )? RPAREN SEMI # AppelInstr
     ;
 
 parExpression returns [ResultExpr expr]:
