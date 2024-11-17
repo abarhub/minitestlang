@@ -9,6 +9,7 @@ import org.minitestlang.manager.ClassManager;
 import org.minitestlang.manager.LoaderException;
 import org.minitestlang.utils.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -105,15 +106,35 @@ public class Analyser {
                             throw new AnalyserException("type invalide");
                         }
                     }
+                    List<TypeAST> listeTypeParameters = new ArrayList<>();
                     if (CollectionUtils.size(appelAST.parameters()) > 0) {
                         for (var expr : appelAST.parameters()) {
-                            analyser(expr, variables);
+                            TypeAST type = analyser(expr, variables);
+                            if (type == null) {
+                                throw new AnalyserException("type not found");
+                            }
+                            listeTypeParameters.add(type);
                         }
                     }
                     if (Objects.equals(appelAST.name(), "print")) {
                         // la méthode existe;
                     } else if (object.isPresent() && object.get() instanceof StringTypeAST && Objects.equals(appelAST.name(), "length")) {
                         // la méthode existe;
+                        try {
+                            ClassAST astString = classManager.chargeClasse(StringTypeAST.NAME);
+                            Optional<MethodAST> methodLength = astString.getMethod(appelAST.name());
+                            if (methodLength.isEmpty()) {
+                                throw new AnalyserException("method '" + appelAST.name() + "' invalide in " + StringTypeAST.NAME);
+                            }
+                            var method = methodLength.get();
+                            if (CollectionUtils.size(method.getParameters()) == CollectionUtils.size(listeTypeParameters)) {
+                                // valid
+                            } else {
+                                throw new AnalyserException("not valid parameters");
+                            }
+                        } catch (LoaderException e) {
+                            throw new AnalyserException("Class String not exists", e);
+                        }
                         try {
                             ClassAST astString = classManager.chargeClasse("String");
                             Optional<MethodAST> methodLength = astString.getMethod("length");
@@ -194,19 +215,28 @@ public class Analyser {
                         throw new AnalyserException("appel object not found");
                     }
                 }
+                List<TypeAST> listeTypeParameters = new ArrayList<>();
                 if (CollectionUtils.size(appelExpressionAST.parameters()) > 0) {
                     for (var expr : appelExpressionAST.parameters()) {
-                        analyser(expr, variables);
+                        var type = analyser(expr, variables);
+                        if (type == null) {
+                            throw new AnalyserException("type not found");
+                        }
+                        listeTypeParameters.add(type);
                     }
                 }
-                if (objet instanceof StringTypeAST &&
-                        Objects.equals(appelExpressionAST.nom(), "length") &&
-                        CollectionUtils.size(appelExpressionAST.parameters()) == 0) {
+                if (objet instanceof StringTypeAST) {
                     try {
-                        ClassAST astString = classManager.chargeClasse("String");
-                        Optional<MethodAST> methodLength = astString.getMethod("length");
+                        ClassAST astString = classManager.chargeClasse(StringTypeAST.NAME);
+                        Optional<MethodAST> methodLength = astString.getMethod(appelExpressionAST.nom());
                         if (methodLength.isEmpty()) {
-                            throw new AnalyserException("length invalide in String");
+                            throw new AnalyserException("method '" + appelExpressionAST.nom() + "' invalide in String");
+                        }
+                        var method = methodLength.get();
+                        if (CollectionUtils.size(method.getParameters()) == CollectionUtils.size(listeTypeParameters)) {
+                            // valid
+                        } else {
+                            throw new AnalyserException("not valid parameters");
                         }
                     } catch (LoaderException e) {
                         throw new AnalyserException("Class String not exists", e);

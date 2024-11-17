@@ -5,6 +5,7 @@ import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
 import org.minitestlang.interpreter.value.*;
+import org.minitestlang.runtime.BuiltinTable;
 import org.minitestlang.runtime.IOUtils;
 import org.minitestlang.utils.CollectionUtils;
 import org.slf4j.Logger;
@@ -20,6 +21,8 @@ public class Interpreter {
     private final List<Consumer<Map<String, Value>>> methodListener = new ArrayList<>();
 
     private final IOUtils ioUtils = new IOUtils();
+
+    private BuiltinTable builtinTable = new BuiltinTable();
 
     public void run(ClassAST ast) throws InterpreterException {
         Optional<MethodAST> optMethod = ast.getMethod("main");
