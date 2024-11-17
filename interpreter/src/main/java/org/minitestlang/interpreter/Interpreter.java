@@ -4,6 +4,7 @@ import org.minitestlang.ast.ClassAST;
 import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
+import org.minitestlang.interpreter.value.*;
 import org.minitestlang.runtime.IOUtils;
 import org.minitestlang.utils.CollectionUtils;
 import org.slf4j.Logger;

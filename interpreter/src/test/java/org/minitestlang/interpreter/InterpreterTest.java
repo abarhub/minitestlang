@@ -3,6 +3,7 @@ package org.minitestlang.interpreter;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.jupiter.api.Test;
 import org.minitestlang.ast.ClassAST;
+import org.minitestlang.interpreter.value.*;
 import org.minitestlang.listener.minitestlang.Parser;
 
 import java.io.StringReader;

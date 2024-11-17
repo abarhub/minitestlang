@@ -1,0 +1,11 @@
+class SampleClass {
+    void test(){
+        print(5);
+    }
+    int main(){
+        String a="azerty";
+        int nb="abc".length();
+        print(3);
+        test();
+    }
+}

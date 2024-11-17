@@ -2,7 +2,7 @@ package org.minitestlang.runtime;
 
 import org.minitestlang.ast.expr.ExpressionAST;
 import org.minitestlang.interpreter.InterpreterException;
-import org.minitestlang.interpreter.Value;
+import org.minitestlang.interpreter.value.Value;
 
 import java.util.Map;
 
