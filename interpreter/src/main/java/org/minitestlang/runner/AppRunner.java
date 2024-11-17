@@ -5,16 +5,14 @@ import org.minitestlang.analyser.AnalyserException;
 import org.minitestlang.ast.ClassAST;
 import org.minitestlang.interpreter.Interpreter;
 import org.minitestlang.interpreter.InterpreterException;
-import org.minitestlang.listener.minitestlang.ListenerException;
-import org.minitestlang.listener.minitestlang.Parser;
+import org.minitestlang.manager.ClassManager;
+import org.minitestlang.manager.LoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -38,24 +36,23 @@ public class AppRunner implements ApplicationRunner {
         if (Files.notExists(p)) {
             error("File " + p + " not exists");
         }
+        ClassManager manager = new ClassManager();
         try {
-            String s = Files.readString(p);
-            try (StringReader reader = new StringReader(s)) {
-                Parser parser = new Parser();
-                ClassAST ast = parser.parse(reader);
-                Analyser analyser = new Analyser();
-                analyser.analyser(ast);
-                Interpreter interpreter = new Interpreter();
-                interpreter.run(ast);
-            } catch (InterpreterException e) {
-                error("Error run " + e.getMessage());
-            } catch (AnalyserException e) {
-                error("Error analyse " + e.getMessage());
-            } catch (ListenerException e) {
-                error("Error parsing " + e.getMessage());
-            }
-        } catch (IOException e) {
-            error("Error for read file " + p);
+            ClassAST ast = manager.chargeFichier(p);
+            manager.setClassePrincipale(ast);
+            Analyser analyser = new Analyser();
+            analyser.analyser(manager);
+            Interpreter interpreter = new Interpreter();
+            interpreter.run(ast);
+        } catch (LoaderException e) {
+            LOGGER.error(e.getMessage(),e);
+            error("Error loading " + e.getMessage());
+        } catch (InterpreterException e) {
+            LOGGER.error(e.getMessage(),e);
+            error("Error run " + e.getMessage());
+        } catch (AnalyserException e) {
+            LOGGER.error(e.getMessage(),e);
+            error("Error analyse " + e.getMessage());
         }
     }
 

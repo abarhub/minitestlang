@@ -9,10 +9,7 @@ import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.PositionAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
-import org.minitestlang.ast.type.BooleanTypeAST;
-import org.minitestlang.ast.type.IntTypeAST;
-import org.minitestlang.ast.type.TypeAST;
-import org.minitestlang.ast.type.VoidTypeAST;
+import org.minitestlang.ast.type.*;
 import org.minitestlang.listener.minitestlang.result.ResultClass;
 import org.minitestlang.listener.minitestlang.result.ResultExpr;
 import org.minitestlang.listener.minitestlang.result.ResultInstr;
@@ -334,6 +331,8 @@ public class MiniTestLangListener extends MinitestlangBaseListener {
             return new BooleanTypeAST(createPosition(token));
         } else if (Objects.equals(token.getText(), "void")) {
             return new VoidTypeAST(createPosition(token));
+        } else if (Objects.equals(token.getText(), "String")) {
+            return new StringTypeAST(createPosition(token));
         } else {
             throw new ListenerException("Invalid type " + token.getText());
         }

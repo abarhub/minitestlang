@@ -5,6 +5,8 @@ import org.minitestlang.ast.MethodAST;
 import org.minitestlang.ast.expr.*;
 import org.minitestlang.ast.instr.*;
 import org.minitestlang.ast.type.*;
+import org.minitestlang.manager.ClassManager;
+import org.minitestlang.manager.LoaderException;
 import org.minitestlang.utils.CollectionUtils;
 
 import java.util.List;
@@ -13,7 +15,11 @@ import java.util.Optional;
 
 public class Analyser {
 
-    public void analyser(ClassAST ast) throws AnalyserException {
+    private ClassManager classManager;
+
+    public void analyser(ClassManager classManager) throws AnalyserException {
+        this.classManager = classManager;
+        ClassAST ast = classManager.getClassePrincipale();
         Optional<MethodAST> optMethod = ast.getMethod("main");
         if (optMethod.isEmpty()) {
             throw new AnalyserException("no main method in class " + ast.getName() + " in position " + ast.getName());
@@ -108,6 +114,11 @@ public class Analyser {
                         // la méthode existe;
                     } else if (object.isPresent() && object.get() instanceof StringTypeAST && Objects.equals(appelAST.name(), "length")) {
                         // la méthode existe;
+                        try {
+                            classManager.chargeClasse("string");
+                        } catch (LoaderException e) {
+                            throw new AnalyserException("Class String not exists", e);
+                        }
                     } else {
                         var optMethod = ast.getMethod(appelAST.name());
                         if (optMethod.isEmpty()) {

@@ -6,6 +6,8 @@ class SampleClass {
         String a="azerty";
         int nb="abc".length();
         print(3);
+        print(nb);
+        print(a.length());
         test();
     }
 }
