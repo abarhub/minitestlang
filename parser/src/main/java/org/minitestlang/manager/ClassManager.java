@@ -56,7 +56,7 @@ public class ClassManager {
         if (classOpt.isPresent()) {
             return classOpt.get();
         } else {
-            Path p = Path.of("../lib/base/" + className + ".mtl");
+            Path p = Path.of("lib/base/" + className + ".mtl");
             if (Files.exists(p)) {
                 ClassAST ast = chargeFichier(p);
                 classTable.ajouterClasse(ast);

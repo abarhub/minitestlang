@@ -1,6 +1,6 @@
 class String {
 
-    int length();
-    char charAt(int position);
+    int length(){}
+    char charAt(/*int position*/){}
 
 }

@@ -115,7 +115,11 @@ public class Analyser {
                     } else if (object.isPresent() && object.get() instanceof StringTypeAST && Objects.equals(appelAST.name(), "length")) {
                         // la méthode existe;
                         try {
-                            classManager.chargeClasse("string");
+                            ClassAST astString = classManager.chargeClasse("String");
+                            Optional<MethodAST> methodLength = astString.getMethod("length");
+                            if (methodLength.isEmpty()) {
+                                throw new AnalyserException("length invalide in String");
+                            }
                         } catch (LoaderException e) {
                             throw new AnalyserException("Class String not exists", e);
                         }
@@ -198,6 +202,15 @@ public class Analyser {
                 if (objet instanceof StringTypeAST &&
                         Objects.equals(appelExpressionAST.nom(), "length") &&
                         CollectionUtils.size(appelExpressionAST.parameters()) == 0) {
+                    try {
+                        ClassAST astString = classManager.chargeClasse("String");
+                        Optional<MethodAST> methodLength = astString.getMethod("length");
+                        if (methodLength.isEmpty()) {
+                            throw new AnalyserException("length invalide in String");
+                        }
+                    } catch (LoaderException e) {
+                        throw new AnalyserException("Class String not exists", e);
+                    }
                     return new IntTypeAST(appelExpressionAST.position());
                 }
                 throw new AnalyserException("appel object not found in position" + expression.position());
